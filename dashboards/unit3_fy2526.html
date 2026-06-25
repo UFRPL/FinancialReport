@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UTM Unit 3 · FY 2025–26 Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f2f7;--surface:#fff;--card:#fff;--border:#dde1ec;
+  --text:#1a1a2e;--muted:#6b7394;--dim:#c8cce0;
+  --green:#0b8f5e;--green2:#0a7a50;--red:#d63557;--amber:#d97706;
+  --blue:#2563eb;--purple:#7c3aed;--cyan:#0891b2;
+  --green-bg:#d1fae5;--red-bg:#fee2e2;--amber-bg:#fef3c7;
+  --shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+.header{padding:20px 32px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);}
+.header h1{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.3px;}
+.fy{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;}
+.header p{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px;letter-spacing:.05em;}
+.header-r{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-align:right;line-height:1.6;}
+.filter-bar{padding:10px 32px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--surface);}
+.fl{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;white-space:nowrap;}
+.chips{display:flex;gap:5px;flex-wrap:wrap;}
+.chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;font-family:'Syne',sans-serif;}
+.chip:hover{border-color:var(--dim);color:var(--text);}
+.chip.active{border-color:var(--cc);color:var(--cc);background:color-mix(in srgb,var(--cc) 12%,transparent);}
+.sep{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+.nav{display:flex;padding:0 32px;border-bottom:1px solid var(--border);background:var(--surface);}
+.tab{padding:12px 20px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;font-family:'DM Mono',monospace;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.page{display:none;padding:22px 32px 60px;animation:fi .2s ease;}
+.page.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+.row{display:flex;gap:14px;}.col{flex:1;}
+.mt{margin-top:16px;}.mt2{margin-top:24px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 17px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));}
+.kpi-lbl{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.kpi-val{font-family:'DM Serif Display',serif;font-size:24px;color:var(--text);margin:4px 0 1px;line-height:1.1;}
+.kpi-sub{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.kpi-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-top:4px;}
+.badge-up{background:var(--green-bg);color:var(--green);}
+.badge-dn{background:var(--red-bg);color:var(--red);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);}
+.ctitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;}
+canvas{display:block;width:100%!important;}
+#tooltip{position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text);z-index:9999;opacity:0;transition:opacity .12s;max-width:240px;line-height:1.7;box-shadow:0 8px 32px rgba(0,0,0,.15);}
+#tooltip.show{opacity:1;}
+#tooltip .tt-title{font-weight:700;color:var(--blue);margin-bottom:5px;font-size:12px;}
+#tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;}
+#tooltip .tt-key{color:var(--muted);}
+#tooltip .tt-val{color:var(--text);font-weight:600;}
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bar-row{display:flex;align-items:center;gap:8px;}
+.bar-name{font-size:11px;color:var(--muted);width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'DM Mono',monospace;flex-shrink:0;}
+.bar-track{flex:1;background:var(--border);border-radius:4px;height:9px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s ease;}
+.bar-val{font-size:11px;color:var(--text);font-family:'DM Mono',monospace;white-space:nowrap;min-width:72px;text-align:right;}
+.donut-wrap{display:flex;align-items:center;gap:20px;}
+.donut-legend{display:flex;flex-direction:column;gap:7px;flex:1;}
+.leg-row{display:flex;align-items:center;gap:7px;font-size:11px;font-family:'DM Mono',monospace;}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.leg-lbl{color:var(--muted);flex:1;}
+.leg-val{color:var(--text);font-weight:600;}
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead th{background:#f5f6fb;color:var(--muted);font-size:10px;letter-spacing:.07em;text-transform:uppercase;padding:9px 12px;text-align:left;font-family:'DM Mono',monospace;white-space:nowrap;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid rgba(180,185,210,.25);}
+tbody tr:hover{background:rgba(37,99,235,.03);}
+tbody td{padding:8px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap;}
+.num{text-align:right;}
+.td-g{color:var(--green);font-weight:600;}
+.td-r{color:var(--red);font-weight:600;}
+.td-y{color:var(--amber);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:7px;font-size:10px;font-weight:700;}
+.tg{background:var(--green-bg);color:var(--green);}
+.ty{background:var(--amber-bg);color:var(--amber);}
+.tr{background:var(--red-bg);color:var(--red);}
+.tu{background:#ede9fe;color:var(--purple);}
+.sleg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.sl-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.sl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.insight{border-radius:10px;padding:11px 15px;font-size:12px;color:var(--text);margin-bottom:16px;line-height:1.7;}
+.insight.g{background:linear-gradient(90deg,rgba(11,143,94,.07),transparent);border:1px solid rgba(11,143,94,.2);}
+.insight.y{background:linear-gradient(90deg,rgba(217,119,6,.07),transparent);border:1px solid rgba(217,119,6,.2);}
+.insight strong{color:var(--green);}
+.insight.y strong{color:var(--amber);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
+.cat-row{cursor:pointer;user-select:none;}
+.cat-row:hover{background:rgba(37,99,235,.04)!important;}
+.cat-toggle{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:3px;background:rgba(37,99,235,.1);color:var(--blue);font-size:10px;font-weight:700;margin-right:6px;transition:transform .2s;font-family:'DM Mono',monospace;flex-shrink:0;}
+.cat-row.open .cat-toggle{transform:rotate(90deg);}
+.part-row{display:none;background:#fafbff;}
+.part-row.visible{display:table-row;}
+.cat-row td:first-child{display:flex;align-items:center;}
+.part-row td:first-child{padding-left:36px!important;color:var(--muted);font-size:10px;}
+.part-row td{font-size:10px!important;color:var(--muted);}
+.part-row:hover{background:rgba(37,99,235,.025)!important;}
+@media(max-width:900px){.g4,.g5{grid-template-columns:1fr 1fr;}.g3{grid-template-columns:1fr;}.g2{grid-template-columns:1fr;}.row{flex-direction:column;}}
+</style>
+</head>
+<body>
+<div id="tooltip"><div class="tt-title" id="tt-title"></div><div id="tt-body"></div></div>
+
+<div class="header">
+  <div>
+    <h1>United Textile Mills Pvt. Ltd. &mdash; <span class="fy">FY 2025–26</span></h1>
+    <p>UNIT III · SALES + PURCHASE DATA · APR 2025 → MAR 2026</p>
+  </div>
+  <div class="header-r" id="hdr-r">Loading…</div>
+</div>
+
+<div class="filter-bar">
+  <span class="fl">Party</span>
+  <div class="chips" id="co-chips"></div>
+  <div class="sep"></div>
+  <span class="fl">Month</span>
+  <div class="chips" id="mo-chips"></div>
+  <div class="sep"></div>
+  <span class="fl">Register</span>
+  <div class="chips" id="reg-chips"></div>
+</div>
+
+<div class="nav">
+  <div class="tab active" onclick="switchTab('overview',this)">Overview</div>
+  <div class="tab" onclick="switchTab('sales',this)">Sales Deep Dive</div>
+  <div class="tab" onclick="switchTab('returns',this)">Returns &amp; Adjustments</div>
+  <div class="tab" onclick="switchTab('purchase',this)">Purchase &amp; Margin</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="insight g" id="ov-ins"></div>
+  <div class="g5" id="ov-kpi1"></div>
+  <div class="g4 mt" id="ov-kpi2"></div>
+  <div class="row mt2">
+    <div class="col" style="flex:1.6">
+      <div class="card">
+        <div class="ctitle">Monthly Net Sales — Stacked by Party (₹ Lakhs)</div>
+        <div class="sleg" id="ov-sleg"></div>
+        <div style="position:relative"><canvas id="c-ov-stack" height="200"></canvas></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="height:100%">
+        <div class="ctitle">Party Revenue Share</div>
+        <div class="donut-wrap" style="margin-top:8px">
+          <svg id="svg-ov-donut" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
+          <div class="donut-legend" id="ov-dleg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Register-wise donut row -->
+  <div class="row mt2">
+    <div class="col">
+      <div class="card">
+        <div class="ctitle">Register-wise Gross Sales Share</div>
+        <div class="donut-wrap" style="margin-top:8px">
+          <svg id="svg-reg-donut" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
+          <div class="donut-legend" id="reg-dleg"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="ctitle">Register-wise Net Sales Share (After Returns)</div>
+        <div class="donut-wrap" style="margin-top:8px">
+          <svg id="svg-regnет-donut" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
+          <div class="donut-legend" id="regnet-dleg"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="ctitle">Register-wise Gross vs Net (₹ Lakhs)</div>
+        <div style="position:relative"><canvas id="c-reg-bar" height="200"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Sales vs Purchase vs Gross Margin — Monthly Trend (₹ Lakhs)</div>
+    <div style="position:relative"><canvas id="c-ov-margin" height="160"></canvas></div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Return Rate % by Party (Top 5 Returners by Absolute Amount)</div>
+    <div class="bar-chart mt" id="ov-ret"></div>
+  </div>
+</div>
+
+<!-- SALES -->
+<div class="page" id="page-sales">
+  <div class="insight g" id="sd-ins"></div>
+  <div class="g4" id="sd-kpi"></div>
+  <div class="mt2 card">
+    <div class="ctitle">Monthly Gross Sales Trend (₹ Lakhs)</div>
+    <div style="position:relative"><canvas id="c-sd-line" height="160"></canvas></div>
+  </div>
+  <div class="mt2">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Party</th><th class="num">Gross Sales (₹)</th><th class="num">Returns (₹)</th><th class="num">Debit Note (₹)</th><th class="num">Net Revenue (₹)</th><th class="num">Pcs</th><th class="num">Return %</th><th class="num">₹/Pc</th><th class="num">Share %</th></tr></thead>
+      <tbody id="sd-tbody"></tbody>
+    </table></div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Monthly Sales Heatmap — ₹ Lakhs per Party</div>
+    <div style="overflow-x:auto;margin-top:10px"><table id="sd-heatmap" style="border-collapse:separate;border-spacing:3px"></table></div>
+  </div>
+</div>
+
+<!-- RETURNS -->
+<div class="page" id="page-returns">
+  <div class="insight y" id="rt-ins"></div>
+  <div class="g3" id="rt-kpi"></div>
+  <div class="row mt2">
+    <div class="col" style="flex:1.4">
+      <div class="card"><div class="ctitle">Monthly Returns vs Gross Sales (₹ Lakhs)</div>
+        <div style="position:relative"><canvas id="c-rt-trend" height="200"></canvas></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card"><div class="ctitle">Return % by Month</div>
+        <div style="position:relative"><canvas id="c-rt-pct" height="200"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Top 5 Parties by Absolute Return Amount</div>
+    <div class="bar-chart mt" id="rt-top5-bars"></div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Top 5 Return Rate % by Party</div>
+    <div class="tbl-wrap" style="margin-top:10px">
+      <table>
+        <thead><tr><th>Party</th><th class="num">Gross Sales (₹)</th><th class="num">Return Amount (₹)</th><th class="num">Return %</th></tr></thead>
+        <tbody id="rt-top5-tbl"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Net Revenue After Returns — Monthly (₹ Lakhs)</div>
+    <div style="position:relative"><canvas id="c-rt-net" height="150"></canvas></div>
+  </div>
+</div>
+
+<!-- PURCHASE & MARGIN -->
+<div class="page" id="page-purchase">
+  <div class="insight y" id="pu-ins"></div>
+  <div class="g3" id="pu-kpi1"></div>
+  <div class="mt2 card">
+    <div class="ctitle">Monthly Purchase by Category — Top 6 Categories (₹ Lakhs)</div>
+    <div class="sleg" id="pu-sleg"></div>
+    <div style="position:relative"><canvas id="c-pu-stack" height="180"></canvas></div>
+  </div>
+  <div class="row mt2">
+    <div class="col">
+      <div class="card">
+        <div class="ctitle">Purchase Category Share</div>
+        <div class="donut-wrap" style="margin-top:10px">
+          <svg id="svg-pu-donut" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
+          <div id="pu-dleg" class="donut-legend"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col" style="flex:1.5">
+      <div class="card">
+        <div class="ctitle">Sales vs Purchase vs Gross Margin — Line Trend (₹ Lakhs)</div>
+        <div style="position:relative"><canvas id="c-pu-margin" height="200"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Monthly Gross Margin % (Net Sales − Total Purchase)</div>
+    <div style="position:relative"><canvas id="c-pu-pct" height="150"></canvas></div>
+    <div style="margin-top:10px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">⚠ Gross margin only. Excludes salaries, overheads, depreciation & other opex.</div>
+  </div>
+  <div class="mt2">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Category</th><th class="num">FY Total (₹)</th><th class="num">Share%</th>
+      <th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th><th class="num">Jul</th><th class="num">Aug</th><th class="num">Sep</th><th class="num">Oct</th><th class="num">Nov</th><th class="num">Dec</th><th class="num">Jan</th><th class="num">Feb</th><th class="num">Mar</th></tr></thead>
+      <tbody id="pu-ctbl"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// DATA — computed from actual UTM Unit 3 XLS files
+// ══════════════════════════════════════════════════════════════════════
+const D = {"months":["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"],"parties":["K Tex","Shr Lifestyles Pvt. Ltd.","PREM SINGH MANPREET SINGH","Zivore Apparel Private Limited","United Creation India","Other"],"party_colors":["#2563eb","#059669","#d97706","#7c3aed","#dc2626","#64748b"],"kpi":{"gross":136328531.5465,"returns":-4655596.1,"dn":49357.52,"net":125103904.9665,"pcs":90028,"purch":106180931.0,"gm":17489674.9665,"gm_pct":14.0,"avg_sell":1440.78,"top2_cats":["Grey Purchases","Embroidery Charges"],"top2_vals":[30820297.0,26225980.0],"other_purch":50567953.0},"monthly_gross":{"Apr":15734157.23,"May":6252350.800000001,"Jun":11465500.47,"Jul":16720054.0525,"Aug":17701340.3,"Sep":4854936.5,"Oct":5567934.2,"Nov":8360329.949999999,"Dec":4637708.284,"Jan":5842914.0,"Feb":20745709.85,"Mar":11827207.91},"monthly_returns":{"Apr":-155471.25,"May":-365123.6,"Jun":-628065.5,"Jul":-236206.0,"Aug":-1612.5,"Sep":-1803752.5499999998,"Oct":-491803.75,"Nov":-30588.0,"Dec":-85325.25,"Jan":-408888.7,"Feb":-64904.5,"Mar":-383854.5},"monthly_net":{"Apr":15578685.98,"May":5887227.200000001,"Jun":10847323.97,"Jul":16484898.0525,"Aug":17699727.8,"Sep":3083615.95,"Oct":5080862.95,"Nov":8329741.949999999,"Dec":4552383.034,"Jan":5435279.319999999,"Feb":20680805.35,"Mar":11443353.41},"monthly_dn":{"Apr":0.0,"May":0.0,"Jun":9889.0,"Jul":1050.0,"Aug":0.0,"Sep":32432.0,"Oct":4732.5,"Nov":0.0,"Dec":0.0,"Jan":1254.02,"Feb":0.0,"Mar":0.0},"monthly_purch":{"Apr":8442713.0,"May":7744827.0,"Jun":9888641.0,"Jul":16256541.0,"Aug":9860972.0,"Sep":6515018.0,"Oct":5293375.000000001,"Nov":7511528.0,"Dec":9694174.0,"Jan":8537662.0,"Feb":7695207.0,"Mar":10173572.0},"monthly_margin":{"Apr":7135972.98,"May":-1857599.7999999989,"Jun":958682.9700000007,"Jul":228357.05250000022,"Aug":7838755.800000001,"Sep":-3431402.05,"Oct":-212512.05000000075,"Nov":818213.9499999993,"Dec":-5141790.966,"Jan":-3102382.6800000006,"Feb":12985598.350000001,"Mar":1269781.4100000001},"mth_party":{"Apr":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":0.0,"PREM SINGH MANPREET SINGH":2010547.0999999999,"Zivore Apparel Private Limited":2689420.0,"United Creation India":0.0,"Other":11034190.129999999},"May":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":1920820.0,"PREM SINGH MANPREET SINGH":7759.5,"Zivore Apparel Private Limited":39894.0,"United Creation India":0.0,"Other":4283877.300000001},"Jun":{"K Tex":3948472.0,"Shr Lifestyles Pvt. Ltd.":2233475.0,"PREM SINGH MANPREET SINGH":0.0,"Zivore Apparel Private Limited":1254900.0,"United Creation India":1084798.0,"Other":2943855.4699999997},"Jul":{"K Tex":4407326.8,"Shr Lifestyles Pvt. Ltd.":642610.0,"PREM SINGH MANPREET SINGH":2100.0,"Zivore Apparel Private Limited":2225206.0,"United Creation India":0.0,"Other":9442811.252500001},"Aug":{"K Tex":11575095.200000001,"Shr Lifestyles Pvt. Ltd.":0.0,"PREM SINGH MANPREET SINGH":2280267.0,"Zivore Apparel Private Limited":869665.0,"United Creation India":238747.5,"Other":2737565.5999999996},"Sep":{"K Tex":29115.2,"Shr Lifestyles Pvt. Ltd.":0.0,"PREM SINGH MANPREET SINGH":2022913.5,"Zivore Apparel Private Limited":470277.5,"United Creation India":340589.0,"Other":1992041.2999999998},"Oct":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":0.0,"PREM SINGH MANPREET SINGH":1674372.6,"Zivore Apparel Private Limited":1199520.0,"United Creation India":973965.3,"Other":1720076.2999999998},"Nov":{"K Tex":2051199.4,"Shr Lifestyles Pvt. Ltd.":0.0,"PREM SINGH MANPREET SINGH":1467764.0,"Zivore Apparel Private Limited":489056.0,"United Creation India":954006.9,"Other":3398303.65},"Dec":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":0.0,"PREM SINGH MANPREET SINGH":1725841.0,"Zivore Apparel Private Limited":0.0,"United Creation India":952248.5,"Other":1959618.784},"Jan":{"K Tex":34793.0,"Shr Lifestyles Pvt. Ltd.":0.0,"PREM SINGH MANPREET SINGH":2706917.0,"Zivore Apparel Private Limited":0.0,"United Creation India":497235.2,"Other":2603968.8},"Feb":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":12219100.0,"PREM SINGH MANPREET SINGH":3667418.25,"Zivore Apparel Private Limited":0.0,"United Creation India":1519417.0,"Other":3339774.6},"Mar":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":4219190.0,"PREM SINGH MANPREET SINGH":2272203.25,"Zivore Apparel Private Limited":0.0,"United Creation India":316143.0,"Other":5019671.66}},"party_totals":{"K Tex":22046001.599999998,"Shr Lifestyles Pvt. Ltd.":21235195.0,"PREM SINGH MANPREET SINGH":19838103.2,"Zivore Apparel Private Limited":9237938.5,"United Creation India":6877150.399999999,"Other":50475754.846499994},"party_returns":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":-1735.0,"PREM SINGH MANPREET SINGH":-32312.5,"Zivore Apparel Private Limited":-122816.0,"United Creation India":-72813.0,"Other":-4425919.6},"party_dn":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":0.0,"PREM SINGH MANPREET SINGH":0.0,"Zivore Apparel Private Limited":0.0,"United Creation India":0.0,"Other":49357.52},"party_cn":{"K Tex":0.0,"Shr Lifestyles Pvt. Ltd.":-1735.0,"PREM SINGH MANPREET SINGH":-8323.0,"Zivore Apparel Private Limited":-26361.0,"United Creation India":-72813.0,"Other":-867474.6499999999},"party_pcs":{"K Tex":8700,"Shr Lifestyles Pvt. Ltd.":27204,"PREM SINGH MANPREET SINGH":5849,"Zivore Apparel Private Limited":21770,"United Creation India":1548,"Other":24957},"register_data":{"Finish Sales":{"gross":72493126.33,"net":69765724.88,"monthly_gross":{"Apr":8290085.73,"May":3212542.6,"Jun":7314148.62,"Jul":6850211.700000001,"Aug":15509379.9,"Sep":1587125.6,"Oct":3856752.7,"Nov":6565118.949999999,"Dec":2835899.5,"Jan":4800484.3,"Feb":7180869.85,"Mar":4490506.88},"monthly_net":{"Apr":8195381.48,"May":3055118.7,"Jun":6980769.62,"Jul":6812771.200000001,"Aug":15509379.9,"Sep":-127691.94999999972,"Oct":3580472.95,"Nov":6544953.949999999,"Dec":2797924.5,"Jan":4769556.8,"Feb":7180869.85,"Mar":4466217.88}},"Garment Sales":{"gross":32478688.500000004,"net":31876393.500000004,"monthly_gross":{"Apr":2807060.0,"May":1960714.0,"Jun":3623484.65,"Jul":2877381.05,"Aug":798328.9,"Sep":770783.9,"Oct":1431360.0,"Nov":491306.0,"Dec":0.0,"Jan":0.0,"Feb":12777840.0,"Mar":4940430.0},"monthly_net":{"Apr":2807060.0,"May":1960714.0,"Jun":3527029.65,"Jul":2877381.05,"Aug":798328.9,"Sep":770783.9,"Oct":1431360.0,"Nov":491306.0,"Dec":0.0,"Jan":-233360.0,"Feb":12777840.0,"Mar":4667950.0}},"Grey Sales":{"gross":3046430.5925,"net":2697237.5925,"monthly_gross":{"Apr":1161638.0,"May":655324.7,"Jun":244020.7,"Jul":666341.5625,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":319105.63},"monthly_net":{"Apr":1155378.0,"May":614497.7,"Jun":169080.7,"Jul":666341.5625,"Aug":0.0,"Sep":0.0,"Oct":-183851.0,"Nov":0.0,"Dec":-4822.0,"Jan":0.0,"Feb":0.0,"Mar":280612.63}},"Embroidery Grey Sales":{"gross":21691898.124,"net":21342705.124,"monthly_gross":{"Apr":3475373.5,"May":423769.5,"Jun":283846.5,"Jul":6326119.74,"Aug":1393631.5,"Sep":2497027.0,"Oct":279821.5,"Nov":1303905.0,"Dec":1801808.784,"Jan":1042429.7,"Feb":787000.0,"Mar":2077165.4},"monthly_net":{"Apr":3469113.5,"May":382942.5,"Jun":208906.5,"Jul":6326119.74,"Aug":1393631.5,"Sep":2497027.0,"Oct":95970.5,"Nov":1303905.0,"Dec":1796986.784,"Jan":1042429.7,"Feb":787000.0,"Mar":2038672.4}}},"top5_ret":{"Afans Apparels":{"gross":0.0,"ret":-1096195.2,"ret_abs":1096195.2,"ret_pct":0.0},"DREAM GIRL":{"gross":1367275.5,"ret":-324916.0,"ret_abs":324916.0,"ret_pct":23.76},"Biba Fashion Limited":{"gross":1281780.0,"ret":-272480.0,"ret_abs":272480.0,"ret_pct":21.26},"Kavita Women Wear Pvt. Ltd.":{"gross":558290.0,"ret":-233360.0,"ret_abs":233360.0,"ret_pct":41.8},"Rayon Fab India":{"gross":222174.6,"ret":-222174.6,"ret_abs":222174.6,"ret_pct":100.0}},"cat_totals":{"Grey Purchases":30820297.0,"Embroidery Charges":26225980.0,"Process Charges":15475092.0,"Stitching Charges":6024818.0,"Finish Purchase":5796187.0,"Director Remuneration - 35%":5400000.0,"Cutting & Packing Expences":3226831.0,"Manpower Cost A/C":3055058.0,"Packing Material A/c":2077759.0,"Transportation Charges":1964225.0,"Accessories Purchase":1149549.0,"Brokerage & Commission A\\c":856134.0,"Electricity Exp.a/c":601059.0,"Plant & Machinary A/C":590000.0,"Business  & Sales Promotion":545938.0,"Advertisement And Sales Promotions Expesnes":501500.0,"Interunit Purchase A/C":485238.0,"Insurance Charges A/C ( Employee )":342318.0,"Travelling Expenses (Domestic)":293082.0,"Staff Welfare  A\\C":234855.0,"Postage & Courier Exp. A/c":211986.0,"Rent  A/c ( Godown )":189570.0,"Scaleping A/c":184740.0,"Remuneration To Auditors":177000.0,"Legal Fees":175000.0,"Computer Software Expenses":96170.0,"Colour & Chemical Process A/c":91126.0,"Furnitures & Fixture":86050.0,"Computer A\\c":82942.0,"Electrical Exp.a/c":81319.0,"Refinishing & Repressing Charges (Garment)":75400.0,"Office Expense A/c":74259.0,"Printing & Stationery Exp. A/c":66759.0,"Sampling Exp.":65155.0,"Mobile Purchase A/C":57298.0,"Repair & Maintainance - Vehicles":49996.0,"Job Work Charges":39789.0,"Internet Service Charges":37052.0,"Professional Fees A/C":32450.0,"Repair & Maintainance ( P & M)":26141.0,"Mukadam & Hamali Charges":16910.0,"Repair & Maintainance - Warehouse":12400.0,"Repair & Maintainance ( Other)":12000.0,"Computer Exp.":6798.0},"cat_monthly":{"Accessories Purchase":{"Apr":29091.0,"May":43105.0,"Jun":95991.0,"Jul":43068.0,"Aug":8718.0,"Sep":101380.0,"Oct":5910.0,"Nov":10080.0,"Dec":139582.0,"Jan":130772.0,"Feb":304691.0,"Mar":237161.0},"Advertisement And Sales Promotions Expesnes":{"Apr":0.0,"May":501500.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Brokerage & Commission A\\c":{"Apr":0.0,"May":0.0,"Jun":3819.0,"Jul":0.0,"Aug":1278.0,"Sep":48831.0,"Oct":0.0,"Nov":0.0,"Dec":103857.0,"Jan":0.0,"Feb":0.0,"Mar":698349.0},"Business  & Sales Promotion":{"Apr":186038.0,"May":0.0,"Jun":0.0,"Jul":265500.0,"Aug":94400.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Colour & Chemical Process A/c":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":91126.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Computer A\\c":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":58752.0,"Sep":24190.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Computer Exp.":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":1193.0,"Sep":2655.0,"Oct":0.0,"Nov":2950.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Computer Software Expenses":{"Apr":9440.0,"May":5900.0,"Jun":21240.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":46020.0,"Nov":0.0,"Dec":7670.0,"Jan":0.0,"Feb":0.0,"Mar":5900.0},"Cutting & Packing Expences":{"Apr":283467.0,"May":221075.0,"Jun":247836.0,"Jul":294909.0,"Aug":334610.0,"Sep":272371.0,"Oct":355627.0,"Nov":239958.0,"Dec":227578.0,"Jan":303293.0,"Feb":219928.0,"Mar":226179.0},"Director Remuneration - 35%":{"Apr":400000.0,"May":400000.0,"Jun":400000.0,"Jul":400000.0,"Aug":400000.0,"Sep":700000.0,"Oct":700000.0,"Nov":400000.0,"Dec":400000.0,"Jan":400000.0,"Feb":400000.0,"Mar":400000.0},"Electrical Exp.a/c":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":18944.0,"Sep":49268.0,"Oct":3335.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":9772.0},"Electricity Exp.a/c":{"Apr":60349.0,"May":77920.0,"Jun":22560.0,"Jul":49160.0,"Aug":37780.0,"Sep":46640.0,"Oct":46120.0,"Nov":57810.0,"Dec":58140.0,"Jan":32740.0,"Feb":28880.0,"Mar":82960.0},"Embroidery Charges":{"Apr":2404193.0,"May":1098820.0,"Jun":2260476.0,"Jul":5113023.0,"Aug":2844680.0,"Sep":1536315.0,"Oct":1217107.0,"Nov":1829988.0,"Dec":1329302.0,"Jan":1927314.0,"Feb":1106331.0,"Mar":3558431.0},"Finish Purchase":{"Apr":1315178.0,"May":164915.0,"Jun":0.0,"Jul":359369.0,"Aug":1125113.0,"Sep":261730.0,"Oct":451568.0,"Nov":120181.0,"Dec":989222.0,"Jan":0.0,"Feb":933528.0,"Mar":75383.0},"Furnitures & Fixture":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":74250.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":11800.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Grey Purchases":{"Apr":2370416.0,"May":3684671.0,"Jun":3869299.0,"Jul":6034389.0,"Aug":1460466.0,"Sep":1853868.0,"Oct":625262.0,"Nov":3187580.0,"Dec":3896755.0,"Jan":1176228.0,"Feb":1926320.0,"Mar":735043.0},"Insurance Charges A/C ( Employee )":{"Apr":0.0,"May":16784.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":76717.0,"Dec":190865.0,"Jan":22696.0,"Feb":0.0,"Mar":35256.0},"Internet Service Charges":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":24190.0,"Nov":5074.0,"Dec":2714.0,"Jan":0.0,"Feb":5074.0,"Mar":0.0},"Interunit Purchase A/C":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":485238.0,"Mar":0.0},"Job Work Charges":{"Apr":0.0,"May":3150.0,"Jun":25572.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":11067.0},"Legal Fees":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":175000.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Manpower Cost A/C":{"Apr":0.0,"May":220233.0,"Jun":224236.0,"Jul":217419.0,"Aug":218393.0,"Sep":211830.0,"Oct":455078.0,"Nov":211272.0,"Dec":0.0,"Jan":201190.0,"Feb":570857.0,"Mar":524550.0},"Mobile Purchase A/C":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":57298.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Mukadam & Hamali Charges":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":1760.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":1920.0,"Jan":3200.0,"Feb":3680.0,"Mar":6350.0},"Office Expense A/c":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":6829.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":67430.0},"Packing Material A/c":{"Apr":46725.0,"May":178310.0,"Jun":277957.0,"Jul":149025.99999999997,"Aug":130344.0,"Sep":233852.00000000003,"Oct":164384.0,"Nov":130040.0,"Dec":224487.0,"Jan":128009.99999999999,"Feb":92221.0,"Mar":322403.0},"Plant & Machinary A/C":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":590000.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Postage & Courier Exp. A/c":{"Apr":9885.0,"May":25470.0,"Jun":8125.0,"Jul":10404.0,"Aug":18975.0,"Sep":29655.0,"Oct":16263.0,"Nov":14910.0,"Dec":19839.0,"Jan":26122.0,"Feb":14385.0,"Mar":17953.0},"Printing & Stationery Exp. A/c":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":5163.0,"Sep":0.0,"Oct":28320.0,"Nov":33276.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Process Charges":{"Apr":926261.0,"May":432582.0,"Jun":1242643.0,"Jul":1412723.0,"Aug":2628184.0,"Sep":509892.0,"Oct":682947.0,"Nov":1024870.0,"Dec":1793688.0,"Jan":2383413.0,"Feb":1304263.0,"Mar":1133626.0},"Professional Fees A/C":{"Apr":2950.0,"May":2950.0,"Jun":2950.0,"Jul":2950.0,"Aug":2950.0,"Sep":2950.0,"Oct":2950.0,"Nov":2950.0,"Dec":2950.0,"Jan":0.0,"Feb":2950.0,"Mar":2950.0},"Refinishing & Repressing Charges (Garment)":{"Apr":0.0,"May":0.0,"Jun":48736.0,"Jul":13624.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":13040.0},"Remuneration To Auditors":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":177000.0,"Feb":0.0,"Mar":0.0},"Rent  A/c ( Godown )":{"Apr":15475.0,"May":15475.0,"Jun":0.0,"Jul":0.0,"Aug":46425.0,"Sep":15475.0,"Oct":0.0,"Nov":31724.0,"Dec":16249.0,"Jan":16249.0,"Feb":16249.0,"Mar":16249.0},"Repair & Maintainance ( Other)":{"Apr":9000.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":3000.0,"Mar":0.0},"Repair & Maintainance ( P & M)":{"Apr":0.0,"May":4080.0,"Jun":2951.0,"Jul":6726.0,"Aug":4602.0,"Sep":800.0,"Oct":0.0,"Nov":1200.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":5782.0},"Repair & Maintainance - Vehicles":{"Apr":0.0,"May":0.0,"Jun":0.0,"Jul":0.0,"Aug":0.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":8496.0,"Jan":41500.0,"Feb":0.0,"Mar":0.0},"Repair & Maintainance - Warehouse":{"Apr":3000.0,"May":0.0,"Jun":0.0,"Jul":4000.0,"Aug":5400.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0},"Sampling Exp.":{"Apr":0.0,"May":55119.0,"Jun":1720.0,"Jul":751.0,"Aug":756.0,"Sep":3281.0,"Oct":0.0,"Nov":1218.0,"Dec":1313.0,"Jan":0.0,"Feb":0.0,"Mar":997.0},"Scaleping A/c":{"Apr":14750.0,"May":23597.0,"Jun":0.0,"Jul":0.0,"Aug":49131.0,"Sep":71535.0,"Oct":6130.0,"Nov":8059.0,"Dec":8135.0,"Jan":3403.0,"Feb":0.0,"Mar":0.0},"Staff Welfare  A\\C":{"Apr":16420.0,"May":11865.0,"Jun":16230.0,"Jul":14610.0,"Aug":16420.0,"Sep":16420.0,"Oct":84240.0,"Nov":20565.0,"Dec":4350.0,"Jan":4980.0,"Feb":13455.0,"Mar":15300.0},"Stitching Charges":{"Apr":11550.0,"May":283878.0,"Jun":836873.0,"Jul":821621.0,"Aug":0.0,"Sep":367981.0,"Oct":79258.0,"Nov":5646.0,"Dec":152416.0,"Jan":1447939.0,"Feb":149436.0,"Mar":1868220.0},"Transportation Charges":{"Apr":328525.0,"May":143706.0,"Jun":156174.0,"Jul":286133.0,"Aug":308188.0,"Sep":147270.0,"Oct":66368.0,"Nov":83660.0,"Dec":114646.0,"Jan":111613.0,"Feb":114721.0,"Mar":103221.0},"Travelling Expenses (Domestic)":{"Apr":0.0,"May":129722.0,"Jun":123253.0,"Jul":0.0,"Aug":40107.0,"Sep":0.0,"Oct":0.0,"Nov":0.0,"Dec":0.0,"Jan":0.0,"Feb":0.0,"Mar":0.0}},"cat_party":{"Accessories Purchase":[{"p":"GLOBAL SALES","n":287993.0},{"p":"Rajeshwar Trading Co.","n":194502.0},{"p":"Shree Jsb Lace","n":132229.0},{"p":"Om Sai Trading","n":109824.0},{"p":"ADDUCO INDUSTRIES","n":102389.0},{"p":"Shree Tirupati Embrotex Pvt Ltd. (Acc)","n":88368.0},{"p":"Ghanshyam Dyeing (Acc)","n":82159.0},{"p":"Swastik Creations - Acc","n":34010.0},{"p":"Shree Ram Dyeing (Acc)","n":31816.0},{"p":"Biba Fashion Limited(Acc.)","n":26120.0}],"Advertisement And Sales Promotions Expesnes":[{"p":"Jkma Trust","n":501500.0}],"Brokerage & Commission A\\c":[{"p":"Tex Story India","n":528297.0},{"p":"Adya Tradelink","n":81912.0},{"p":"Tejas Kanji Chheda","n":47495.0},{"p":"S. R. AGENCY","n":32949.0},{"p":"Tara Textile Agency","n":30387.0},{"p":"Kiran Agencies- Delhi","n":28194.0},{"p":"ANANT THAKKAR","n":23588.0},{"p":"VISHNU TEXTILE AGENCY","n":16220.0},{"p":"RAMKISHOR B. JHANI.","n":15502.0},{"p":"Jay Shree Ram Agencies","n":14812.0}],"Business  & Sales Promotion":[{"p":"Jfsc Sports Services Private Limited","n":206500.0},{"p":"Chandan Bhandari - Reimbursement","n":186038.0},{"p":"Mukti A Smita Thackeray Foundation","n":153400.0}],"Colour & Chemical Process A/c":[{"p":"JAI CHEM ENTERPRISE","n":91126.0}],"Computer A\\c":[{"p":"NMICRO SYSTEM & SERVICES","n":42952.0},{"p":"Clicktech Retail Private Limited","n":39990.0}],"Computer Exp.":[{"p":"NMICRO SYSTEM & SERVICES","n":2950.0},{"p":"SAI COMPUTER","n":2655.0},{"p":"Clicktech Retail Private Limited","n":1193.0}],"Computer Software Expenses":[{"p":"SAB INFOTECH SOLUTIONS PVT LTD","n":94400.0},{"p":"SAI COMPUTER","n":1770.0}],"Cutting & Packing Expences":[{"p":"OM PACKING WORKS","n":2906549.0},{"p":"SHREE NARAYAN DUBEY","n":224730.0},{"p":"Shivom Packing Works","n":95552.0}],"Director Remuneration - 35%":[{"p":"Chandan Bhandari - Salary","n":5400000.0}],"Electrical Exp.a/c":[{"p":"RAJ ELECTRICALS","n":81319.0}],"Electricity Exp.a/c":[{"p":"ADANI ELECTRICITY MUMBAI LTD.  A/C NO. 152191943","n":219280.0},{"p":"TORRENT POWER LIMITED 13195598058","n":185330.0},{"p":"ADANI ELECTRICITY MUMBAI LTD. A/C NO. 151238109","n":119630.0},{"p":"Adani Electricity Mumbai Ltd.  A/C No. 152188114","n":76819.0}],"Embroidery Charges":[{"p":"SHRUTI FASHIONS PVT LTD","n":9204867.0},{"p":"VIDHATA CREATIONS","n":2999952.0},{"p":"Radhey Krishna","n":2924681.0},{"p":"RADHIKA CREATIONS","n":1998533.0},{"p":"ARSH EMBROIDERY","n":1273518.0},{"p":"Thread Art","n":1051810.0},{"p":"Shilp Fashion","n":953125.0},{"p":"MAKER SYNTHETICS","n":727857.0},{"p":"Balaji Exports","n":655855.0},{"p":"KRISLON CREATION PVT LTD","n":473928.0}],"Finish Purchase":[{"p":"SHREE GANPATI EMBROIDERY (P) LTD (FINISH)","n":5606290.0},{"p":"Bansilal Bhikhabhai (Pur)","n":93278.0},{"p":"Srr Fashions","n":73959.0},{"p":"Monarch Textile","n":10444.0},{"p":"Duratex Silk Mills Pvt Ltd - Finish","n":8190.0},{"p":"Fabilon Exports Private Limited","n":2602.0},{"p":"RIDDHI SIDDHI ENTERPRISES","n":1424.0}],"Furnitures & Fixture":[{"p":"FITWELL FURNITURE MART","n":74250.0},{"p":"FURNITURE POINT","n":11800.0}],"Grey Purchases":[{"p":"KANIKA FASHION FABRICS","n":14271389.0},{"p":"Dhanlaxmi Cotton Mills","n":3740708.0},{"p":"Maheshwary Cotton","n":2767861.0},{"p":"Duratex Silk Mills Pvt Ltd (Pur)","n":2744932.0},{"p":"KAMAL TEXTILES","n":2485110.0},{"p":"UNITED FASHION APP. P. LTD. UNIT - I  (GREY)","n":1121772.0},{"p":"Laxmi Tex Fab","n":1110975.0},{"p":"SHREE SAKTHIVINAYAGAR WEAVES PVT LTD","n":1057737.0},{"p":"Megha Agencies","n":546209.0},{"p":"SAAD TEXTILES","n":416504.0}],"Insurance Charges A/C ( Employee )":[{"p":"Star Health And Allied Insurance Co. Ltd.","n":342318.0}],"Internet Service Charges":[{"p":"Pooja Internet Service Pvt.Ltd","n":24190.0},{"p":"SHIVAM INTERNET","n":10148.0},{"p":"Veer Point Private Limited","n":2714.0}],"Interunit Purchase A/C":[{"p":"UNITED TEXTILE MILLS PVT. LTD U-2 ( PUR) - GUJ","n":485238.0}],"Job Work Charges":[{"p":"D.P.Handicraft","n":26313.0},{"p":"VISHAL RAMSEVAK GUPTA","n":8526.0},{"p":"Mohammed Zakir Shaikh","n":4950.0}],"Legal Fees":[{"p":"Adv. Niyati A. Gupta","n":175000.0}],"Manpower Cost A/C":[{"p":"Jivanlal C Oza","n":735266.0},{"p":"Debajit Saha","n":674619.0},{"p":"Mohd. Zainul Abedeen Ansari","n":630942.0},{"p":"Sakharam Dinkar Mardhekar","n":495636.0},{"p":"Daryavsingh Narayansingh Rawal-Bill","n":316575.0},{"p":"Mukesh Sahdev Patel","n":202020.0}],"Mobile Purchase A/C":[{"p":"INFINITI RETAIL LIMITED","n":57298.0}],"Mukadam & Hamali Charges":[{"p":"K. K.  DISALE","n":16910.0}],"Office Expense A/c":[{"p":"Bni India Enterprises Pvt Ltd","n":61117.0},{"p":"ALL OUT PEST CONTROL","n":12567.0},{"p":"Manjeet Enterprises","n":575.0}],"Packing Material A/c":[{"p":"BHAVESH TRADERS","n":1626345.0},{"p":"Shree Durga Trading Co.","n":130454.0},{"p":"Om Sai Trading","n":123366.0},{"p":"AASTHA STATIONERY","n":90944.0},{"p":"GURUDEV PLASTIC","n":57738.0},{"p":"Bombay Creators","n":27332.0},{"p":"Silverbill Packaging Llp","n":11550.0},{"p":"KHETESHWAR PACK PLAST","n":10030.0}],"Plant & Machinary A/C":[{"p":"JK & PC TEXLAB","n":590000.0}],"Postage & Courier Exp. A/c":[{"p":"MARUTI ENTERPRISE","n":210558.0},{"p":"Chetan Parcel Service","n":1428.0}],"Printing & Stationery Exp. A/c":[{"p":"MARUTI PRINTS","n":38439.0},{"p":"SUSWANI PRINT N PACK","n":28320.0}],"Process Charges":[{"p":"PIONEER DYEING PVT. LTD.","n":8092957.0},{"p":"Jay Industrial Chemical Pvt Ltd","n":2982076.0},{"p":"Ullengal Brothers Textiles Pvt. Ltd.","n":1697520.0},{"p":"Rudra Creation","n":1335466.0},{"p":"SHREE KARNI JI SILK MILLS","n":476719.0},{"p":"Rama Textile Processors","n":268717.0},{"p":"Vividhaan Text Processors Pvt. Ltd.","n":260651.0},{"p":"CHIRIPAL INDUSTRIES LTD..","n":207606.0},{"p":"Shree Karni Ji Silk Mills Unit-Ii","n":73391.0},{"p":"SHREE JEENMATA DYG. & PTG.MILLS PVT. LTD.","n":49951.0}],"Professional Fees A/C":[{"p":"Taurus Collection Pvt Ltd","n":32450.0}],"Refinishing & Repressing Charges (Garment)":[{"p":"GURUDEV WASH CARE","n":51807.0},{"p":"Ganesh Garments","n":13040.0},{"p":"Ibs Garment Processors(Exp.)","n":10553.0}],"Remuneration To Auditors":[{"p":"SARA & ASSOCIATES","n":177000.0}],"Rent  A/c ( Godown )":[{"p":"ARVIND PANCHAL HUF","n":189570.0}],"Repair & Maintainance ( Other)":[{"p":"FITWELL FURNITURE MART","n":9000.0},{"p":"P. D. Patil","n":3000.0}],"Repair & Maintainance ( P & M)":[{"p":"D S Trading & Services","n":14573.0},{"p":"MULAYAM KAMLESH SINGH","n":6080.0},{"p":"Altra Lite Luminaires","n":5488.0}],"Repair & Maintainance - Vehicles":[{"p":"Om Sai Motors","n":49996.0}],"Repair & Maintainance - Warehouse":[{"p":"Nageshwer Vishwakarma","n":12400.0}],"Sampling Exp.":[{"p":"Uniform.Point","n":30000.0},{"p":"Montex India","n":19310.0},{"p":"Gokul Creation","n":3859.0},{"p":"Mayka Lifestyle","n":3728.0},{"p":"Mafco Fab Tex","n":1972.0},{"p":"Mahavir Textiles (Finish)","n":1756.0},{"p":"Bansilal Bhikhabhai (Pur)","n":1218.0},{"p":"Mangal Cotton Mills Pvt.Ltd.","n":997.0},{"p":"Balaji Exports","n":824.0},{"p":"Geeta Textiles","n":756.0}],"Scaleping A/c":[{"p":"MOHD.ASHFAQUE ANSARI","n":184740.0}],"Staff Welfare  A\\C":[{"p":"Harshani Water Suppliers","n":104195.0},{"p":"NEW MAHESH ENTERPRISES","n":71500.0},{"p":"Aarav Enterprises","n":59160.0}],"Stitching Charges":[{"p":"Ganesh Garments","n":2344871.0},{"p":"Om Packing Works (Stitching)","n":1543850.0},{"p":"PRABHA CREATION.","n":836873.0},{"p":"Salasar Creations - Unit I","n":514756.0},{"p":"Shivom Packing Works (Stitching)","n":482216.0},{"p":"Abt Enterpries - Unit I I","n":186118.0},{"p":"Arpheritage Clothing Pvt. Ltd.","n":116134.0}],"Transportation Charges":[{"p":"Sanjay Transport","n":1049424.0},{"p":"Ramdev Transport Service","n":542330.0},{"p":"MARUTI TRANSPORT SERVICE","n":128558.0},{"p":"Rajesh Cargo (Guj)","n":74860.0},{"p":"Surat Road Carrier (Bhiwandi)","n":49480.0},{"p":"DELHI PUNJAB GOODS CARRIER PVT LTD","n":40596.0},{"p":"Rajesh Cargo","n":16820.0},{"p":"Abc Transport Company Pvt Ltd","n":11697.0},{"p":"PANKAJ TRANSPORT SERVICE","n":10700.0},{"p":"Acer Green Carriers Private Limited","n":9200.0}],"Travelling Expenses (Domestic)":[{"p":"Chandan Bhandari - Reimbursement","n":293082.0}]}};
+
+const MONTHS = D.months; // ['Apr','May',…,'Mar']
+const PARTIES = D.parties;
+const PC = {}; // party colors
+PARTIES.forEach((p,i) => PC[p] = D.party_colors[i]);
+
+// Register display info
+const REG_KEYS = Object.keys(D.register_data);
+const REG_COLORS = {'Finish Sales':'#059669','Garment Sales':'#2563eb',
+  'Grey Sales':'#0891b2','Embroidery Grey Sales':'#d97706'};
+
+// Purchase category colors (top 6)
+const CAT_TOP6 = Object.entries(D.cat_totals).sort((a,b)=>b[1]-a[1]).slice(0,6).map(x=>x[0]);
+const CAT_COLORS = {'Grey Purchases':'#1d4ed8','Embroidery Charges':'#db2777',
+  'Process Charges':'#0891b2','Stitching Charges':'#dc2626',
+  'Finish Purchase':'#059669','Director Remuneration - 35%':'#9333ea',
+  'Cutting & Packing Expences':'#d97706','Manpower Cost A/C':'#ca8a04'};
+function catColor(c){ return CAT_COLORS[c] || '#64748b'; }
+
+// ── Filter state ────────────────────────────────────────────────────
+let ACO = new Set(), AMO = new Set(), AREG = new Set();
+function filtMos(){ return MONTHS.filter(m => AMO.size===0 || AMO.has(m)); }
+function filtCos(){ return PARTIES.filter(p => ACO.size===0 || ACO.has(p)); }
+function filtRegs(){ return REG_KEYS.filter(r => AREG.size===0 || AREG.has(r)); }
+
+// ── Filter bar ──────────────────────────────────────────────────────
+(function buildFilters(){
+  // Party chips
+  const cc = document.getElementById('co-chips');
+  PARTIES.forEach(p => {
+    const d = document.createElement('div');
+    d.className='chip'; d.textContent=p; d.style.setProperty('--cc', PC[p]);
+    d.onclick=()=>{ ACO.has(p)?ACO.delete(p):ACO.add(p); d.classList.toggle('active'); renderAll(); };
+    cc.appendChild(d);
+  });
+  // Month chips
+  const mc = document.getElementById('mo-chips');
+  MONTHS.forEach(m => {
+    const d = document.createElement('div');
+    d.className='chip'; d.textContent=m; d.style.setProperty('--cc','#2563eb');
+    d.onclick=()=>{ AMO.has(m)?AMO.delete(m):AMO.add(m); d.classList.toggle('active'); renderAll(); };
+    mc.appendChild(d);
+  });
+  // Register chips (sales registers only, no returns)
+  const rc = document.getElementById('reg-chips');
+  REG_KEYS.forEach(r => {
+    const d = document.createElement('div');
+    d.className='chip'; d.textContent=r; d.style.setProperty('--cc', REG_COLORS[r]||'#2563eb');
+    d.onclick=()=>{ AREG.has(r)?AREG.delete(r):AREG.add(r); d.classList.toggle('active'); renderAll(); };
+    rc.appendChild(d);
+  });
+  // Header
+  const txns = 1713;
+  document.getElementById('hdr-r').innerHTML = `${txns} Total Transactions · ${PARTIES.length-1} Key Parties + Other<br>Apr 2025 → Mar 2026 · Full Year`;
+})();
+
+// ── Formatters ───────────────────────────────────────────────────────
+const num = n => Math.round(n).toLocaleString('en-IN');
+function fmt(v){
+  const a=Math.abs(v); if(a===0) return '₹0';
+  if(a<1e3) return '₹'+Math.round(v).toLocaleString('en-IN');
+  if(a<1e5) return '₹'+(v/1e3).toFixed(1)+'K';
+  if(a<1e7) return '₹'+(v/1e5).toFixed(2)+'L';
+  return '₹'+(v/1e7).toFixed(2)+' Cr';
+}
+function ttFmt(v){
+  const a=Math.abs(v); if(a===0) return '₹0';
+  if(a<1e3) return '₹'+Math.round(v).toLocaleString('en-IN');
+  if(a<1e5) return '₹'+(v/1e3).toFixed(1)+'K';
+  return '₹'+(v/1e5).toFixed(2)+'L';
+}
+function syFmt(v,rng){
+  if(rng>=1e6) return (v/1e5).toFixed(0)+'L';
+  if(rng>=2e5) return (v/1e5).toFixed(1)+'L';
+  if(rng>=1e4) return (v/1e3).toFixed(1)+'K';
+  return Math.round(v).toLocaleString('en-IN');
+}
+
+// ── Tooltip ──────────────────────────────────────────────────────────
+const TT=document.getElementById('tooltip'), TTT=document.getElementById('tt-title'), TTB=document.getElementById('tt-body');
+function showTT(e,title,rows){
+  TTT.textContent=title;
+  TTB.innerHTML=rows.map(([k,v])=>`<div class="tt-row"><span class="tt-key">${k}</span><span class="tt-val">${v}</span></div>`).join('');
+  TT.classList.add('show'); moveTT(e);
+}
+function moveTT(e){
+  const x=e.clientX,y=e.clientY,W=TT.offsetWidth,H=TT.offsetHeight;
+  TT.style.left=(x+14+W>window.innerWidth?x-W-14:x+14)+'px';
+  TT.style.top=(y+14+H>window.innerHeight?y-H-14:y+14)+'px';
+}
+function hideTT(){ TT.classList.remove('show'); }
+document.addEventListener('mousemove', e=>{ if(TT.classList.contains('show')) moveTT(e); });
+
+// ── Canvas setup ─────────────────────────────────────────────────────
+const chartMeta = {};
+function setupCanvas(id, H){
+  const c=document.getElementById(id); if(!c) return null;
+  const dpr=window.devicePixelRatio||1;
+  const W=c.offsetWidth||Math.max(window.innerWidth-120,300);
+  c.width=W*dpr; c.height=H*dpr; c.style.width=W+'px'; c.style.height=H+'px';
+  const ctx=c.getContext('2d'); ctx.scale(dpr,dpr);
+  return{ctx,W,H};
+}
+function fillBg(ctx,W,H){ ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H); }
+
+// ── Line chart ───────────────────────────────────────────────────────
+function drawLine(id, labels, datasets, opts={}){
+  const H=opts.H||160; const r=setupCanvas(id,H); if(!r) return;
+  const{ctx,W}=r; const pad={l:58,r:16,t:14,b:28};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b, n=labels.length;
+  const allV=datasets.flatMap(d=>d.data);
+  const rawMin=Math.min(...allV), rawMax=Math.max(...allV);
+  const minV=opts.minV!==undefined?opts.minV:Math.min(0,rawMin*1.1);
+  const maxV=rawMax>0?rawMax*1.08:1;
+  const range=maxV-minV||1;
+  const sY=v=>pad.t+cH*(1-(v-minV)/range);
+  const sX=i=>pad.l+(n>1?i/(n-1):0.5)*cW;
+  fillBg(ctx,W,H);
+  // Grid
+  for(let i=0;i<=5;i++){
+    const v=minV+(maxV-minV)*(i/5), y=sY(v);
+    ctx.strokeStyle=Math.abs(v)<range*0.01?'#cbd5e1':'#e2e8f0';
+    ctx.lineWidth=Math.abs(v)<range*0.01?1:.6;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(syFmt(v*1e5,range*1e5), pad.l-4, y+3);
+  }
+  labels.forEach((l,i)=>{ ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='center'; ctx.fillText(l,sX(i),H-pad.b+14); });
+  datasets.forEach(ds=>{
+    if(ds.fill){
+      ctx.beginPath(); ctx.moveTo(sX(0),sY(ds.data[0]));
+      ds.data.forEach((_,i)=>{ if(i) ctx.lineTo(sX(i),sY(ds.data[i])); });
+      ctx.lineTo(sX(n-1),sY(minV)); ctx.lineTo(sX(0),sY(minV)); ctx.closePath();
+      ctx.fillStyle=ds.fill; ctx.fill();
+    }
+    ctx.beginPath(); ctx.moveTo(sX(0),sY(ds.data[0]));
+    ds.data.forEach((_,i)=>{ if(i) ctx.lineTo(sX(i),sY(ds.data[i])); });
+    ctx.strokeStyle=ds.c; ctx.lineWidth=ds.w||2; ctx.lineJoin='round'; ctx.stroke();
+    ds.data.forEach((v,i)=>{ ctx.beginPath(); ctx.arc(sX(i),sY(v),3,0,Math.PI*2); ctx.fillStyle=ds.c; ctx.fill(); });
+  });
+  chartMeta[id]={type:'line',labels,datasets,sX,sY,pad,W,H,n,range};
+  const c=document.getElementById(id);
+  c.onmousemove=e=>lineHover(e,id); c.onmouseleave=hideTT;
+}
+function lineHover(e,id){
+  const m=chartMeta[id]; if(!m) return;
+  const c=document.getElementById(id); const rect=c.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(m.W/rect.width);
+  const{labels,datasets,n,pad}=m; const cW=m.W-pad.l-pad.r;
+  const sX=i=>pad.l+(n>1?i/(n-1):0.5)*cW;
+  let best=0,bestD=Infinity;
+  for(let i=0;i<n;i++){ const d=Math.abs(sX(i)-mx); if(d<bestD){bestD=d;best=i;} }
+  if(bestD>cW/n) { hideTT(); return; }
+  const rows=datasets.map(ds=>[ds.lbl||'', ttFmt(ds.data[best]*1e5)]);
+  showTT(e,labels[best],rows);
+}
+
+// ── Stacked bar chart ────────────────────────────────────────────────
+function drawStacked(id,labels,datasets,opts={}){
+  const H=opts.H||200; const r=setupCanvas(id,H); if(!r) return;
+  const{ctx,W}=r; const pad={l:58,r:16,t:12,b:28};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b, n=labels.length;
+  const maxV=(opts.maxV||Math.max(...labels.map((_,i)=>datasets.reduce((s,d)=>s+(d.data[i]||0),0)))*1.06)||1;
+  const bW=(cW/n)*0.72, gap=cW/n;
+  fillBg(ctx,W,H);
+  [0,.25,.5,.75,1].forEach(f=>{
+    const v=maxV*f, y=pad.t+cH*(1-f);
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=.6;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(syFmt(v*1e5,maxV*1e5), pad.l-4, y+3);
+  });
+  const barData=[];
+  labels.forEach((lbl,i)=>{
+    let yBot=pad.t+cH; const cols=[];
+    datasets.forEach(ds=>{
+      const v=ds.data[i]||0, h=(v/maxV)*cH;
+      const x=pad.l+i*gap+(gap-bW)/2;
+      if(h>0){ ctx.fillStyle=ds.c; ctx.beginPath(); ctx.roundRect(x,yBot-h,bW,h,[2,2,0,0]); ctx.fill(); }
+      cols.push({lbl:ds.lbl||ds.c,v,c:ds.c}); yBot-=h;
+    });
+    barData.push({lbl,x:pad.l+i*gap+gap/2,cols});
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText(lbl,pad.l+i*gap+gap/2,H-pad.b+15);
+  });
+  chartMeta[id]={type:'stacked',barData,gap,pad};
+  const c=document.getElementById(id);
+  c.onmousemove=e=>stackHover(e,id); c.onmouseleave=hideTT;
+}
+function stackHover(e,id){
+  const m=chartMeta[id]; if(!m) return;
+  const c=document.getElementById(id); const rect=c.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*c.offsetWidth/rect.width;
+  let best=null,bestD=Infinity;
+  m.barData.forEach(b=>{ const d=Math.abs(b.x-mx); if(d<bestD){bestD=d;best=b;} });
+  if(!best||bestD>m.gap*.8){ hideTT(); return; }
+  const rows=best.cols.filter(x=>x.v>0).map(x=>[x.lbl,ttFmt(x.v)]);
+  const tot=best.cols.reduce((s,x)=>s+x.v,0); rows.push(['Total',ttFmt(tot)]);
+  showTT(e,best.lbl,rows);
+}
+
+// ── Grouped bar chart (for register gross vs net) ────────────────────
+function drawGroupedBar(id,labels,series,opts={}){
+  const H=opts.H||200; const r=setupCanvas(id,H); if(!r) return;
+  const{ctx,W}=r; const pad={l:62,r:16,t:14,b:36};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b, n=labels.length;
+  const allV=series.flatMap(s=>s.data);
+  const maxV=Math.max(...allV)*1.08||1;
+  const gW=cW/n, numS=series.length, bW=gW*0.6/numS;
+  fillBg(ctx,W,H);
+  [0,.25,.5,.75,1].forEach(f=>{
+    const v=maxV*f, y=pad.t+cH*(1-f);
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=.6;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(syFmt(v,maxV), pad.l-4, y+3);
+  });
+  const barData=[];
+  labels.forEach((lbl,i)=>{
+    const gX=pad.l+i*gW+(gW-bW*numS)/2;
+    const cols=[];
+    series.forEach((s,si)=>{
+      const v=s.data[i], h=(v/maxV)*cH, x=gX+si*bW;
+      ctx.fillStyle=s.c;
+      ctx.beginPath(); ctx.roundRect(x,pad.t+cH-h,bW-1,h,[2,2,0,0]); ctx.fill();
+      cols.push({lbl:s.lbl,v,c:s.c});
+    });
+    barData.push({lbl,x:pad.l+i*gW+gW/2,cols});
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='center';
+    // Wrap label
+    const words=lbl.split(' ');
+    ctx.fillText(words[0], pad.l+i*gW+gW/2, H-pad.b+14);
+    if(words.length>1) ctx.fillText(words.slice(1).join(' '), pad.l+i*gW+gW/2, H-pad.b+24);
+  });
+  // Legend
+  series.forEach((s,si)=>{
+    const lx=pad.l+si*80; const ly=H-4;
+    ctx.fillStyle=s.c; ctx.fillRect(lx,ly-8,10,8);
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText(s.lbl, lx+13, ly-1);
+  });
+  chartMeta[id]={type:'grouped',barData,gap:gW,pad};
+  const c=document.getElementById(id);
+  c.onmousemove=e=>groupedHover(e,id); c.onmouseleave=hideTT;
+}
+function groupedHover(e,id){
+  const m=chartMeta[id]; if(!m) return;
+  const c=document.getElementById(id); const rect=c.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*c.offsetWidth/rect.width;
+  let best=null,bestD=Infinity;
+  m.barData.forEach(b=>{ const d=Math.abs(b.x-mx); if(d<bestD){bestD=d;best=b;} });
+  if(!best||bestD>m.gap*.8){ hideTT(); return; }
+  showTT(e,best.lbl,best.cols.map(c=>[c.lbl,ttFmt(c.v)]));
+}
+
+// ── Simple bar chart ─────────────────────────────────────────────────
+function drawBar(id,labels,values,colors,opts={}){
+  const H=opts.H||180; const r=setupCanvas(id,H); if(!r) return;
+  const{ctx,W}=r; const pad={l:58,r:16,t:12,b:28};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b, n=labels.length;
+  const hasNeg=values.some(v=>v<0);
+  const absMax=Math.max(...values.map(Math.abs),1)*1.1;
+  const minV=hasNeg?-absMax:0, maxV=absMax;
+  const sY=v=>pad.t+cH*(1-(v-minV)/(maxV-minV)), zero=sY(0);
+  const bW=(cW/n)*0.65, gap=cW/n;
+  fillBg(ctx,W,H);
+  for(let i=0;i<=5;i++){
+    const v=minV+(maxV-minV)*(i/5), y=sY(v);
+    ctx.strokeStyle=Math.abs(v)<maxV*.01?'#cbd5e1':'#e2e8f0';
+    ctx.lineWidth=Math.abs(v)<maxV*.01?1:.6;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='right';
+    const lbl=opts.yf?opts.yf(v):syFmt(v*1e5,maxV*1e5);
+    ctx.fillText(lbl, pad.l-4, y+3);
+  }
+  const barData=[];
+  values.forEach((v,i)=>{
+    const x=pad.l+i*gap+(gap-bW)/2, y1=sY(v), barH=Math.abs(y1-zero);
+    const col=Array.isArray(colors)?colors[i]:colors;
+    ctx.fillStyle=col; ctx.beginPath(); ctx.roundRect(x,Math.min(zero,y1),bW,Math.max(barH,1),[2,2,0,0]); ctx.fill();
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText(labels[i], pad.l+i*gap+gap/2, H-pad.b+15);
+    barData.push({lbl:labels[i],v,x:pad.l+i*gap+gap/2});
+  });
+  chartMeta[id]={type:'bar',barData,gap,pad,opts};
+  const c=document.getElementById(id);
+  c.onmousemove=e=>barHover(e,id); c.onmouseleave=hideTT;
+}
+function barHover(e,id){
+  const m=chartMeta[id]; if(!m) return;
+  const c=document.getElementById(id); const rect=c.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*c.offsetWidth/rect.width;
+  let best=null,bestD=Infinity;
+  m.barData.forEach(b=>{ const d=Math.abs(b.x-mx); if(d<bestD){bestD=d;best=b;} });
+  if(!best||bestD>m.gap*.8){ hideTT(); return; }
+  const fv=m.opts?.yf?m.opts.yf(best.v):ttFmt(best.v*1e5);
+  showTT(e,best.lbl,[['Value',fv]]);
+}
+
+// ── Horizontal bar helper ─────────────────────────────────────────────
+function makeBars(id,rows,maxV){
+  const el=document.getElementById(id); if(!el) return;
+  el.innerHTML=rows.map(r=>`<div class="bar-row">
+    <div class="bar-name" title="${r.n}">${r.n}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${maxV?(r.v/maxV*100).toFixed(1):0}%;background:${r.c}"></div></div>
+    <div class="bar-val">${r.lbl}</div></div>`).join('');
+}
+
+// ── SVG Donut ────────────────────────────────────────────────────────
+function drawDonut(svgId, slices, legId){
+  const svg=document.getElementById(svgId); if(!svg) return;
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const total=slices.reduce((s,x)=>s+Math.abs(x.v),0); if(!total) return;
+  const cx=70,cy=70,R=60,ri=34;
+  let angle=-Math.PI/2;
+  slices.forEach(sl=>{
+    const sweep=(Math.abs(sl.v)/total)*Math.PI*2;
+    const x1=cx+R*Math.cos(angle), y1=cy+R*Math.sin(angle);
+    const x2=cx+R*Math.cos(angle+sweep), y2=cy+R*Math.sin(angle+sweep);
+    const xi1=cx+ri*Math.cos(angle), yi1=cy+ri*Math.sin(angle);
+    const xi2=cx+ri*Math.cos(angle+sweep), yi2=cy+ri*Math.sin(angle+sweep);
+    const lg=sweep>Math.PI?1:0;
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',`M${x1},${y1} A${R},${R},0,${lg},1,${x2},${y2} L${xi2},${yi2} A${ri},${ri},0,${lg},0,${xi1},${yi1} Z`);
+    p.setAttribute('fill',sl.c); p.setAttribute('stroke','#fff'); p.setAttribute('stroke-width','2');
+    // Tooltip on hover
+    p.style.cursor='pointer';
+    p.addEventListener('mouseenter', e=>{
+      showTT(e, sl.n, [['Amount', ttFmt(sl.v)], ['Share', (sl.v/total*100).toFixed(1)+'%']]);
+    });
+    p.addEventListener('mousemove', e=>moveTT(e));
+    p.addEventListener('mouseleave', hideTT);
+    svg.appendChild(p); angle+=sweep;
+  });
+  if(legId){
+    document.getElementById(legId).innerHTML=slices.map(sl=>
+      `<div class="leg-row"><div class="leg-dot" style="background:${sl.c}"></div>
+      <div class="leg-lbl">${sl.n}</div>
+      <div class="leg-val">${(sl.v/total*100).toFixed(1)}%</div></div>`
+    ).join('');
+  }
+}
+
+// ── KPI card ─────────────────────────────────────────────────────────
+function kpi(lbl,val,sub,badge,accent){
+  return `<div class="kpi" style="--accent:${accent||'var(--blue)'}">
+    <div class="kpi-lbl">${lbl}</div><div class="kpi-val">${val}</div>
+    <div class="kpi-sub">${sub}</div>
+    ${badge?`<div class="kpi-badge ${badge.c}">${badge.t}</div>`:''}</div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// OVERVIEW
+// ══════════════════════════════════════════════════════════════════════
+function renderOverview(){
+  const mos=filtMos(), cos=filtCos(), regs=filtRegs();
+
+  // Compute filtered gross sales from mth_party
+  let gross=0;
+  mos.forEach(m=>{ cos.forEach(p=>{ gross+=(D.mth_party[m]||{})[p]||0; }); });
+
+  let returns=0;
+
+mos.forEach(m=>{
+  const monthGross=D.monthly_gross[m]||0;
+  const monthReturns=D.monthly_returns[m]||0;
+
+  let filteredGross=0;
+  cos.forEach(p=>{
+    filteredGross += (D.mth_party[m]||{})[p]||0;
+  });
+
+  const partyRatio=monthGross ? (filteredGross/monthGross) : 0;
+
+  let regRatio=1;
+
+  if(AREG.size>0){
+    let regGross=0;
+    regs.forEach(r=>{
+      regGross += D.register_data[r]?.monthly_gross[m]||0;
+    });
+    regRatio=monthGross ? (regGross/monthGross) : 0;
+  }
+
+  returns += monthReturns * partyRatio * regRatio;
+});
+  const dn=mos.reduce((s,m)=>s+(D.monthly_dn[m]||0), 0);
+  const net=mos.reduce((s,m)=>s+(D.monthly_net[m]||0),0);
+  const totalPurch=mos.reduce((s,m)=>s+(D.monthly_purch[m]||0), 0);
+  const gm=net-totalPurch;
+  const retPct=gross?Math.abs(returns/gross*100).toFixed(2):0;
+  const gmPct=net?(gm/net*100).toFixed(1):0;
+
+  // Register filter: override gross/net if registers filtered
+  let displayGross=gross, displayNet=net;
+  if(AREG.size>0){
+    displayGross=0; displayNet=0;
+    regs.forEach(r=>{
+      const rd=D.register_data[r];
+      if(rd){ displayGross+=rd.gross; displayNet+=rd.net; }
+    });
+  }
+
+  const peakM=mos.reduce((a,m)=>(D.monthly_net[m]||0)>(D.monthly_net[a]||0)?m:a, mos[0]||'Apr');
+  document.getElementById('ov-ins').innerHTML=
+    `Peak month: <strong>${peakM}</strong> (₹${(D.monthly_net[peakM]/1e5).toFixed(2)}L). Return rate <strong>${retPct}%</strong>. Gross margin: <strong style="color:${gm>=0?'var(--green)':'var(--red)'}">${gmPct}%</strong>. Largest party: <strong>${cos[0]||''}</strong>.`;
+
+  document.getElementById('ov-kpi1').innerHTML=[
+    kpi('Gross Sales',fmt(displayGross),'sales invoices',null,'var(--green)'),
+    kpi('Net Sales',fmt(displayNet),'after returns',null,'var(--cyan)'),
+    kpi('Total Returns',fmt(returns),retPct+'% of gross',{c:'badge-dn',t:'↓'+retPct+'%'},'var(--red)'),
+    kpi('Total Pcs',num(
+  Math.round(
+    cos.reduce((s,p)=>{
+      const partySales=mos.reduce((a,m)=>a+((D.mth_party[m]||{})[p]||0),0);
+      const partyTotal=D.party_totals[p]||1;
+      const ratio=partySales/partyTotal;
+      return s + ((D.party_pcs[p]||0) * ratio);
+    },0)
+  )
+),'dispatched FY',null,'var(--amber)'),
+    kpi('Gross Margin',fmt(gm),gmPct+'% indicative',{c:gm>=0?'badge-up':'badge-dn',t:gmPct+'%'},gm>=0?'var(--green)':'var(--red)'),
+  ].join('');
+  document.getElementById('ov-kpi2').innerHTML=[
+    kpi('Total Purchase',fmt(totalPurch),'all categories',null,'var(--purple)'),
+    kpi(
+  'ASP',
+  '₹'+num(
+    gross /
+    Math.max(
+      1,
+      Math.round(
+        cos.reduce((s,p)=>{
+          const partySales=mos.reduce((a,m)=>a+((D.mth_party[m]||{})[p]||0),0);
+          const partyTotal=D.party_totals[p]||1;
+          const ratio=partySales/partyTotal;
+          return s + ((D.party_pcs[p]||0) * ratio);
+        },0)
+      )
+    )
+  ),
+  'gross ÷ pcs',
+  null,
+  'var(--blue)'
+),
+    kpi('Debit Notes',fmt(dn),'Dn adjustments',null,'var(--amber)'),
+    kpi('Transactions',num(1713),'total rows',null,'var(--muted)'),
+  ].join('');
+
+  // Stacked chart
+  document.getElementById('ov-sleg').innerHTML=cos.map(p=>`<div class="sl-item"><div class="sl-dot" style="background:${PC[p]}"></div>${p}</div>`).join('');
+  drawStacked('c-ov-stack', mos,
+    cos.map(p=>({c:PC[p],lbl:p,data:mos.map(m=>(D.mth_party[m]||{})[p]||0)})));
+
+  // Party donut
+  const pSlices=cos.map(p=>({n:p,v:mos.reduce((s,m)=>s+((D.mth_party[m]||{})[p]||0),0),c:PC[p]})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+  drawDonut('svg-ov-donut',pSlices,'ov-dleg');
+
+  // Register gross donut
+  const regGrossSlices=REG_KEYS.map(r=>({n:r,v:D.register_data[r].gross,c:REG_COLORS[r]})).filter(x=>x.v>0);
+  drawDonut('svg-reg-donut',regGrossSlices,'reg-dleg');
+
+  // Register net donut
+  const regNetSlices=REG_KEYS.map(r=>({n:r,v:D.register_data[r].net,c:REG_COLORS[r]})).filter(x=>x.v>0);
+  drawDonut('svg-regnет-donut',regNetSlices,'regnet-dleg');
+
+  // Register grouped bar (gross vs net in L)
+  drawGroupedBar('c-reg-bar',
+    REG_KEYS.map(r=>r.replace(' Invoice','').replace(' Sales','\nSales')),
+    [
+      {lbl:'Gross',c:'#2563eb',data:REG_KEYS.map(r=>D.register_data[r].gross)},
+      {lbl:'Net',c:'#059669',data:REG_KEYS.map(r=>D.register_data[r].net)},
+    ],{H:200});
+
+  // Line chart: Sales vs Purchase vs Margin
+  drawLine('c-ov-margin', mos, [
+    {data:mos.map(m=>(D.monthly_net[m]||0)/1e5), c:'#059669', fill:'rgba(5,150,105,.07)', lbl:'Net Sales (L)', w:2.5},
+    {data:mos.map(m=>(D.monthly_purch[m]||0)/1e5), c:'#dc2626', fill:'rgba(220,38,38,.06)', lbl:'Purchase (L)', w:2},
+    {data:mos.map(m=>(D.monthly_margin[m]||0)/1e5), c:'#2563eb', fill:'rgba(37,99,235,.06)', lbl:'Margin (L)', w:2},
+  ], {minV:Math.min(...mos.map(m=>(D.monthly_margin[m]||0)/1e5))*1.2});
+
+  // Return rate bars — top 5 returners by absolute amount
+  const top5Arr=Object.entries(D.top5_ret).sort((a,b)=>b[1].ret_abs-a[1].ret_abs);
+  const retColors=['#dc2626','#d97706','#7c3aed','#0891b2','#059669'];
+  const retBars=top5Arr.map(([p,rd],i)=>({
+    n:p.length>22?p.slice(0,22)+'…':p,
+    v:rd.ret_pct,
+    c:retColors[i],
+    lbl:`${rd.ret_pct.toFixed(2)}% (${ttFmt(rd.ret_abs)})`
+  }));
+  makeBars('ov-ret', retBars, Math.max(...retBars.map(x=>x.v))||1);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SALES DEEP DIVE
+// ══════════════════════════════════════════════════════════════════════
+function renderSales(){
+  const mos=filtMos(), cos=filtCos();
+  let gross=0;
+  mos.forEach(m=>{ cos.forEach(p=>{ gross+=(D.mth_party[m]||{})[p]||0; }); });
+  const ret=mos.reduce((s,m)=>s+(D.monthly_returns[m]||0),0);
+  const dn=mos.reduce((s,m)=>s+(D.monthly_dn[m]||0),0);
+  const net=gross+ret+dn;
+  const retPct=gross?Math.abs(ret/gross*100).toFixed(2):0;
+
+  const peakM=mos.length?mos.reduce((a,m)=>D.monthly_net[m]>D.monthly_net[a]?m:a,mos[0]):'—';
+  document.getElementById('sd-ins').innerHTML=
+    `Gross invoiced: <strong>${fmt(gross)}</strong> over <strong>${mos.length}</strong> months. Net: <strong>${fmt(net)}</strong>. Return rate: <strong>${retPct}%</strong>. Peak: <strong>${peakM}</strong>.`;
+
+  document.getElementById('sd-kpi').innerHTML=[
+    kpi('Gross Sales',fmt(gross),mos.length+' months',null,'var(--green)'),
+    kpi('Net Sales',fmt(net),'after returns + Dn',null,'var(--cyan)'),
+    kpi('Returns',fmt(ret),retPct+'% of gross',{c:'badge-dn',t:'↓'+retPct+'%'},'var(--red)'),
+    kpi('Debit Notes',fmt(dn),'Dn adjustments',null,'var(--amber)'),
+  ].join('');
+
+  drawLine('c-sd-line', mos, [{
+    data:mos.map(m=>cos.reduce((s,p)=>s+((D.mth_party[m]||{})[p]||0),0)/1e5),
+    c:'#059669', fill:'rgba(5,150,105,.09)', lbl:'Gross Sales (L)', w:2.5
+  }]);
+
+  const tot=cos.reduce((s,p)=>s+mos.reduce((a,m)=>a+((D.mth_party[m]||{})[p]||0),0),0);
+  document.getElementById('sd-tbody').innerHTML=cos.map(p=>{
+    const sv=mos.reduce((a,m)=>a+((D.mth_party[m]||{})[p]||0),0);
+    const rv=Math.abs(D.party_returns[p]||0);
+    const dnv=D.party_dn[p]||0;
+    const nv=sv-rv+dnv;
+    const pcs=D.party_pcs[p]||0;
+    const rp=sv?(rv/sv*100).toFixed(2):0;
+    if(!sv) return '';
+    return `<tr>
+      <td><span style="color:${PC[p]}">●</span> ${p}</td>
+      <td class="num">₹${num(sv)}</td>
+      <td class="num td-r">₹${num(rv)}</td>
+      <td class="num td-y">₹${num(dnv)}</td>
+      <td class="num td-g">₹${num(nv)}</td>
+      <td class="num">${num(pcs)}</td>
+      <td class="num ${+rp>5?'td-r':+rp>2?'td-y':'td-g'}">${rp}%</td>
+      <td class="num">₹${num(pcs?Math.round(sv/pcs):0)}</td>
+      <td class="num">${tot?(sv/tot*100).toFixed(1):0}%</td></tr>`;
+  }).join('')+`<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td><td class="num">₹${num(tot)}</td><td colspan="7"></td></tr>`;
+
+  // Heatmap
+  const allV=cos.flatMap(p=>MONTHS.map(m=>(D.mth_party[m]||{})[p]||0));
+  const hmMax=Math.max(...allV)||1;
+  let h=`<thead><tr><th style="background:#f5f6fb;color:#6b7394;font-size:10px;padding:5px 10px;font-family:'DM Mono',monospace;min-width:130px">Party</th>`;
+  MONTHS.forEach(m=>h+=`<th style="background:#f5f6fb;color:#6b7394;font-size:9px;padding:5px 8px;font-family:'DM Mono',monospace;text-align:center">${m}</th>`);
+  h+=`</tr></thead><tbody>`;
+  cos.filter(p=>D.party_totals[p]>0).forEach(p=>{
+    h+=`<tr><td style="color:${PC[p]};font-size:11px;padding:5px 10px;font-family:'DM Mono',monospace">● ${p}</td>`;
+    MONTHS.forEach(m=>{
+      const v=(D.mth_party[m]||{})[p]||0, intt=v/hmMax;
+      const bg=v>0?`rgba(37,99,235,${Math.max(.05,intt*.55)})`:'transparent';
+      const fc=intt>.5?'#fff':intt>.15?'#1e3a8a':'#94a3b8';
+      h+=`<td style="background:${bg};color:${fc};font-size:9px;padding:4px 7px;text-align:center;font-family:'DM Mono',monospace;border-radius:3px">${v>0?(v/1e5).toFixed(1)+'L':''}</td>`;
+    }); h+=`</tr>`;
+  });
+  document.getElementById('sd-heatmap').innerHTML=h+'</tbody>';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RETURNS
+// ══════════════════════════════════════════════════════════════════════
+function renderReturns(){
+  const mos=filtMos(), cos=filtCos();
+  const totS=cos.reduce((s,p)=>s+mos.reduce((a,m)=>a+((D.mth_party[m]||{})[p]||0),0),0);
+  let totR=0;
+
+mos.forEach(m=>{
+  const monthGross=D.monthly_gross[m]||0;
+  const monthReturns=D.monthly_returns[m]||0;
+
+  let filteredGross=0;
+  cos.forEach(p=>{
+    filteredGross += (D.mth_party[m]||{})[p]||0;
+  });
+
+  const ratio=monthGross ? (filteredGross/monthGross) : 0;
+
+  totR += monthReturns * ratio;
+});
+
+totR=Math.abs(totR);
+  const rPct=totS?(totR/totS*100).toFixed(2):0;
+
+  document.getElementById('rt-ins').innerHTML=
+    `Total Returns: <strong>${ttFmt(totR)}</strong> (${rPct}% of gross). Top 5 returners shown below by absolute return amount. <strong></strong>`;
+
+  document.getElementById('rt-kpi').innerHTML=[
+    kpi('Gross Sales',fmt(totS),mos.length+' months',null,'var(--green)'),
+    kpi('Total Returns',ttFmt(totR),rPct+'% of gross',{c:'badge-dn',t:'↓'+rPct+'%'},'var(--red)'),
+    kpi('Months Filtered',mos.length+' of 12','selected period',null,'var(--blue)'),
+  ].join('');
+
+  drawLine('c-rt-trend', mos, [
+    {data:mos.map(m=>cos.reduce((s,p)=>s+((D.mth_party[m]||{})[p]||0),0)/1e5), c:'#059669', fill:'rgba(5,150,105,.07)', lbl:'Gross Sales (L)', w:2},
+    {data:mos.map(m=>Math.abs(D.monthly_returns[m]||0)/1e5), c:'#dc2626', fill:'rgba(220,38,38,.08)', lbl:'Returns (L)', w:2},
+  ], {H:200});
+
+  const pctD=mos.map(m=>{
+    const s=cos.reduce((a,p)=>a+((D.mth_party[m]||{})[p]||0),0);
+    const r=Math.abs(D.monthly_returns[m]||0);
+    return s?+(r/s*100).toFixed(2):0;
+  });
+  drawBar('c-rt-pct', mos, pctD, pctD.map(v=>v>5?'#dc2626':v>2?'#d97706':'#059669'),
+    {H:200, yf:v=>v.toFixed(1)+'%'});
+
+  // Top 5 by absolute return — horizontal bars (no "Other" grouping)
+  const top5Arr=Object.entries(D.top5_ret).sort((a,b)=>b[1].ret_abs-a[1].ret_abs);
+  const retColors=['#dc2626','#d97706','#7c3aed','#0891b2','#059669'];
+  const retBars=top5Arr.map(([p,rd],i)=>({
+    n:p.length>25?p.slice(0,25)+'…':p, v:rd.ret_abs, c:retColors[i],
+    lbl:`${ttFmt(rd.ret_abs)} (${rd.ret_pct>0?rd.ret_pct.toFixed(1)+'%':'n/a'})`
+  }));
+  makeBars('rt-top5-bars', retBars, retBars[0]?.v||1);
+
+  // Top 5 table
+  document.getElementById('rt-top5-tbl').innerHTML=top5Arr.map(([p,rd],i)=>`<tr>
+    <td style="color:${retColors[i]}">● ${p}</td>
+    <td class="num">₹${num(rd.gross)}</td>
+    <td class="num td-r">₹${num(rd.ret_abs)}</td>
+    <td class="num ${rd.ret_pct>10?'td-r':rd.ret_pct>3?'td-y':'td-g'}">${rd.ret_pct>0?rd.ret_pct.toFixed(2)+'%':'—'}</td></tr>`
+  ).join('');
+
+  const netD=mos.map(m=>{
+    const s=cos.reduce((a,p)=>a+((D.mth_party[m]||{})[p]||0),0);
+    const r=D.monthly_returns[m]||0;
+    return (s+r)/1e5;
+  });
+  drawBar('c-rt-net', mos, netD, netD.map(v=>v<0?'#dc2626':'#2563eb'),
+    {H:150, yf:v=>{const a=Math.abs(v*1e5);return a<1e5?(v*1e5/1e3).toFixed(1)+'K':v.toFixed(1)+'L';}});
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PURCHASE & MARGIN
+// ══════════════════════════════════════════════════════════════════════
+function renderPurchase(){
+  const mos=filtMos(), cos=filtCos();
+  const totS=cos.reduce((s,p)=>s+mos.reduce((a,m)=>a+((D.mth_party[m]||{})[p]||0),0),0);
+  const totRet=mos.reduce((s,m)=>s+(D.monthly_returns[m]||0),0);
+  const totDn=mos.reduce((s,m)=>s+(D.monthly_dn[m]||0),0);
+  const totNet=totS+totRet+totDn;
+  const totP=mos.reduce((s,m)=>s+(D.monthly_purch[m]||0),0);
+  const totMg=totNet-totP;
+  const mgPct=totNet?(totMg/totNet*100).toFixed(1):0;
+
+  const top2=D.kpi.top2_cats;
+  const top2v=D.kpi.top2_vals;
+  const otherPurch=D.kpi.other_purch;
+  const totCats=D.kpi.purch;
+
+  document.getElementById('pu-ins').innerHTML=
+    `Total purchase: <strong>${fmt(totP)}</strong>. Top category: <strong>${top2[0]}</strong> (${fmt(top2v[0])}). Second: <strong>${top2[1]}</strong> (${fmt(top2v[1])}). Gross margin: <strong style="color:${totMg>=0?'var(--green)':'var(--red)'}">${mgPct}%</strong>.`;
+
+  document.getElementById('pu-kpi1').innerHTML=[
+    kpi(top2[0]||'Cat 1',fmt(top2v[0]||0),((top2v[0]||0)/totCats*100).toFixed(1)+'% of total purchase',null,'var(--blue)'),
+    kpi(top2[1]||'Cat 2',fmt(top2v[1]||0),((top2v[1]||0)/totCats*100).toFixed(1)+'% of total purchase',null,'var(--purple)'),
+    kpi('Other Categories',fmt(otherPurch),(otherPurch/totCats*100).toFixed(1)+'% bundled',null,'var(--muted)'),
+  ].join('');
+
+  // Top 6 stacked chart
+  document.getElementById('pu-sleg').innerHTML=CAT_TOP6.map(c=>`<div class="sl-item"><div class="sl-dot" style="background:${catColor(c)}"></div>${c}</div>`).join('');
+  drawStacked('c-pu-stack', mos,
+    CAT_TOP6.map(c=>({c:catColor(c),lbl:c,data:mos.map(m=>D.cat_monthly[c]?.[m]||0)})),
+    {H:180});
+
+  // Purchase donut — top 8
+  const puTop=Object.entries(D.cat_totals).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const totAll=Object.values(D.cat_totals).reduce((s,v)=>s+v,0);
+  const puSlices=puTop.map(([c,v])=>({n:c,v,c:catColor(c)}));
+  drawDonut('svg-pu-donut',puSlices,'pu-dleg');
+
+  // Line: sales vs purchase vs margin
+  drawLine('c-pu-margin', mos, [
+    {data:mos.map(m=>(D.monthly_net[m]||0)/1e5), c:'#059669', fill:'rgba(5,150,105,.07)', lbl:'Net Sales (L)', w:2.5},
+    {data:mos.map(m=>(D.monthly_purch[m]||0)/1e5), c:'#dc2626', fill:'rgba(220,38,38,.06)', lbl:'Purchase (L)', w:2},
+    {data:mos.map(m=>(D.monthly_margin[m]||0)/1e5), c:'#2563eb', fill:'rgba(37,99,235,.06)', lbl:'Margin (L)', w:2},
+  ], {H:200, minV:Math.min(...mos.map(m=>(D.monthly_margin[m]||0)/1e5))*1.2});
+
+  // Margin % bar
+  const mpD=mos.map(m=>{ const s=D.monthly_net[m]||0, mg=D.monthly_margin[m]||0; return s?+(mg/s*100).toFixed(1):0; });
+  drawBar('c-pu-pct', mos, mpD, mpD.map(v=>v<0?'#dc2626':v<10?'#d97706':'#059669'),
+    {H:150, yf:v=>v.toFixed(0)+'%'});
+
+  // Purchase table with all categories + party breakdown
+  const grandTot=Object.values(D.cat_totals).reduce((s,v)=>s+v,0);
+  let tblHTML='';
+  Object.entries(D.cat_totals).sort((a,b)=>b[1]-a[1]).forEach(([c,tot])=>{
+    const sh=grandTot?(tot/grandTot*100).toFixed(1):0;
+    const parts=(D.cat_party[c]||[]).filter(p=>p.n!==0);
+    const cid='cat-'+c.replace(/\W+/g,'_');
+    const moCells=MONTHS.map(m=>{
+      const mv=D.cat_monthly[c]?.[m]||0;
+      return `<td class="num" style="font-size:10px;color:${mv>2e6?'var(--text)':'var(--muted)'}">${mv>0?(mv/1e5).toFixed(1)+'L':'—'}</td>`;
+    }).join('');
+    tblHTML+=`<tr class="cat-row" data-cid="${cid}" onclick="${parts.length?`toggleCat('${cid}',this)`:''}">
+      <td style="display:flex;align-items:center">
+        ${parts.length?`<span class="cat-toggle">▶</span>`:`<span style="width:21px;display:inline-block"></span>`}
+        <span style="width:7px;height:7px;border-radius:2px;display:inline-block;background:${catColor(c)};margin-right:6px"></span>${c}
+        ${parts.length?`<span style="font-size:9px;color:var(--muted);margin-left:5px;font-family:'DM Mono',monospace">(${parts.length})</span>`:''}
+      </td>
+      <td class="num">₹${num(tot)}</td><td class="num">${sh}%</td>${moCells}</tr>`;
+    parts.forEach(p=>{
+      const pSh=tot?(p.n/tot*100).toFixed(1):0;
+      tblHTML+=`<tr class="part-row" data-parent="${cid}">
+        <td>↳ ${p.p}</td>
+        <td class="num">₹${num(p.n)}</td>
+        <td class="num">${pSh}%</td>
+        ${MONTHS.map(()=>'<td></td>').join('')}</tr>`;
+    });
+  });
+  tblHTML+=`<tr style="border-top:2px solid var(--border);font-weight:700">
+    <td style="padding-left:12px">TOTAL</td>
+    <td class="num">₹${num(grandTot)}</td><td></td>
+    ${MONTHS.map(m=>`<td class="num">${(D.monthly_purch[m]||0)>0?(D.monthly_purch[m]/1e5).toFixed(1)+'L':'—'}</td>`).join('')}</tr>`;
+  document.getElementById('pu-ctbl').innerHTML=tblHTML;
+}
+
+function toggleCat(cid,rowEl){
+  const isOpen=rowEl.classList.toggle('open');
+  document.querySelectorAll(`.part-row[data-parent="${cid}"]`).forEach(r=>r.classList.toggle('visible',isOpen));
+}
+
+function switchTab(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  requestAnimationFrame(()=>requestAnimationFrame(renderAll));
+}
+
+function renderAll(){
+  const id=document.querySelector('.page.active')?.id;
+  if(id==='page-overview') renderOverview();
+  else if(id==='page-sales') renderSales();
+  else if(id==='page-returns') renderReturns();
+  else if(id==='page-purchase') renderPurchase();
+}
+
+window.addEventListener('resize',()=>setTimeout(renderAll,80));
+renderOverview();
+</script>
+</body>
+</html>

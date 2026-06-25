@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Dashboards — United Fashion &amp; Retail Pvt. Ltd.</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3080;
+  --navy-dark:#0F1E52;
+  --navy-mid:#162564;
+  --navy-light:#2a4296;
+  --red:#D42027;
+  --gold:#F5A800;
+  --gold-light:#FFF3CC;
+  --white:#FFFFFF;
+  --light:#F4F6FB;
+  --border:#DDE3F0;
+  --text:#111827;
+  --muted:#6B7280;
+  --green:#059669;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Syne',sans-serif;background:var(--light);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+.strip{background:var(--red);height:4px;width:100%}
+
+.site-header{
+  background:var(--navy);
+  padding:0 40px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:0 2px 12px rgba(0,0,0,.28)
+}
+.header-left{display:flex;align-items:center;gap:14px}
+.header-logo{height:38px;width:auto;display:block}
+.header-title{
+  display:flex;
+  flex-direction:column;
+  gap:2px
+}
+.company{color:#fff;font-size:13px;font-weight:700;letter-spacing:.3px}
+.company-sub{color:rgba(255,255,255,.5);font-size:10px;letter-spacing:.5px;text-transform:uppercase}
+.tagline{
+  background:rgba(245,168,0,.15);
+  border:1px solid rgba(245,168,0,.4);
+  color:var(--gold);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  padding:5px 14px;
+  border-radius:20px
+}
+
+.hero{
+  background:linear-gradient(155deg,var(--navy-dark) 0%,var(--navy) 50%,var(--navy-light) 100%);
+  padding:52px 20px 88px;
+  text-align:center;
+  position:relative;
+  overflow:hidden
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  top:-60px;left:50%;
+  transform:translateX(-50%);
+  width:600px;height:300px;
+  background:radial-gradient(ellipse,rgba(245,168,0,.08) 0%,transparent 70%);
+  pointer-events:none
+}
+.hero::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;
+  width:100%;height:48px;
+  background:var(--light);
+  clip-path:ellipse(55% 100% at 50% 100%)
+}
+.hero-eyebrow{
+  color:var(--gold);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-bottom:14px;
+  position:relative;z-index:1
+}
+.hero h1{
+  color:#fff;
+  font-size:2.1rem;
+  font-weight:800;
+  line-height:1.22;
+  margin-bottom:10px;
+  position:relative;z-index:1
+}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero-sub{
+  color:rgba(255,255,255,.5);
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  position:relative;z-index:1
+}
+
+.wrap{
+  max-width:700px;
+  margin:-44px auto 52px;
+  padding:0 20px;
+  position:relative;z-index:10
+}
+
+.card{
+  background:var(--white);
+  border-radius:20px;
+  box-shadow:0 12px 52px rgba(27,48,128,.18);
+  padding:40px 36px
+}
+
+.step-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px}
+.step-badge{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--navy);color:#fff;
+  font-size:13px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px
+}
+.step-badge.gold{background:var(--gold);color:var(--navy-dark)}
+.step-heading{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.step-hint{font-size:12px;color:var(--muted)}
+
+/* ── UNIT GRID ─────────── */
+.unit-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:4px
+}
+
+.unit-card{
+  border:2px solid var(--border);
+  border-radius:16px;
+  padding:20px 10px 16px;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color .2s,transform .2s,box-shadow .2s,background .2s;
+  position:relative;
+  user-select:none
+}
+.unit-card:hover:not(.coming-soon){
+  border-color:var(--navy);
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(27,48,128,.14)
+}
+.unit-card.active{
+  border-color:var(--navy);
+  background:var(--navy);
+  transform:translateY(-3px);
+  box-shadow:0 10px 28px rgba(27,48,128,.32)
+}
+.unit-card.coming-soon{
+  opacity:.45;
+  cursor:not-allowed
+}
+
+.unit-num{
+  font-size:26px;font-weight:800;
+  color:var(--navy);
+  line-height:1;margin-bottom:5px
+}
+.unit-card.active .unit-num{color:var(--gold)}
+
+.unit-label{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;
+  color:var(--muted)
+}
+.unit-card.active .unit-label{color:rgba(255,255,255,.6)}
+
+.unit-pills{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.unit-pill{
+  font-size:9px;font-weight:600;
+  padding:3px 6px;border-radius:20px;
+  background:var(--light);color:var(--navy-mid);
+  letter-spacing:.2px
+}
+.unit-card.active .unit-pill{background:rgba(255,255,255,.14);color:rgba(255,255,255,.8)}
+.soon-badge{
+  font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;
+  color:var(--muted);margin-top:10px;
+  padding:3px 10px;
+  border:1px solid var(--border);border-radius:20px;
+  display:inline-block
+}
+
+.check-icon{
+  position:absolute;top:8px;right:8px;
+  width:16px;height:16px;
+  background:var(--gold);border-radius:50%;
+  display:none;
+  align-items:center;justify-content:center
+}
+.unit-card.active .check-icon{display:flex}
+
+/* ── FY SECTION ─────────── */
+.fy-section{
+  margin-top:28px;
+  padding-top:28px;
+  border-top:2px dashed var(--border);
+  animation:fadeSlide .3s ease
+}
+.fy-section.hidden{display:none}
+
+@keyframes fadeSlide{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.fy-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  margin-top:18px
+}
+
+.fy-card{
+  border:2px solid var(--border);
+  border-radius:14px;
+  padding:22px 18px 18px;
+  cursor:pointer;
+  transition:all .22s;
+  position:relative;
+  overflow:hidden
+}
+.fy-card:hover:not(.unavailable){
+  border-color:var(--navy);
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(27,48,128,.14)
+}
+.fy-card:hover:not(.unavailable) .fy-arrow{opacity:1;transform:translateX(0)}
+.fy-card.unavailable{opacity:.45;cursor:not-allowed}
+.fy-card::after{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--navy),var(--navy-light));
+  opacity:0;transition:opacity .22s
+}
+.fy-card:hover:not(.unavailable)::after{opacity:1}
+
+.fy-year{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:3px}
+.fy-type{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.fy-meta{
+  display:flex;align-items:center;gap:6px;
+  margin-top:14px
+}
+.fy-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0
+}
+.fy-dot.available{background:var(--green)}
+.fy-dot.unavailable{background:#D1D5DB}
+.fy-cta{font-size:11px;font-weight:700}
+.fy-meta.available .fy-cta{color:var(--navy)}
+.fy-meta.unavailable .fy-cta{color:var(--muted)}
+
+.fy-arrow{
+  position:absolute;top:50%;right:18px;
+  transform:translate(-4px,-50%);
+  opacity:0;transition:all .22s;
+  color:var(--navy)
+}
+
+/* ── FOOTER ─────────── */
+footer{
+  background:var(--navy-dark);
+  color:rgba(255,255,255,.4);
+  text-align:center;
+  padding:22px 20px;
+  font-size:12px;
+  margin-top:auto;
+  letter-spacing:.3px
+}
+footer strong{color:var(--gold);font-weight:600}
+
+/* ── RESPONSIVE ─────────── */
+@media(max-width:600px){
+  .unit-grid{grid-template-columns:repeat(2,1fr)}
+  .fy-grid{grid-template-columns:1fr}
+  .card{padding:28px 18px}
+  .site-header{padding:0 18px}
+  .hero h1{font-size:1.55rem}
+  .hero{padding:44px 16px 84px}
+  .tagline{display:none}
+}
+@media(max-width:360px){
+  .unit-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="strip"></div>
+
+<header class="site-header">
+  <div class="header-left">
+    <img src="logo.png" alt="United" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-title">
+      <span class="company">United Fashion &amp; Retail Pvt. Ltd.</span>
+      <span class="company-sub">Internal Portal</span>
+    </div>
+  </div>
+  <span class="tagline">Financial Dashboards</span>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">Financial Intelligence</div>
+  <h1>Unit Performance<br><em>Dashboard Portal</em></h1>
+  <p class="hero-sub">Select a unit and financial year to view</p>
+</section>
+
+<main class="wrap">
+  <div class="card">
+
+    <!-- Step 1 -->
+    <div class="step-row">
+      <div class="step-badge">1</div>
+      <div>
+        <div class="step-heading">Select Manufacturing Unit</div>
+        <div class="step-hint">Choose which unit's financial data you want to view</div>
+      </div>
+    </div>
+
+    <div class="unit-grid" id="unitGrid"></div>
+
+    <!-- Step 2 -->
+    <div class="fy-section hidden" id="fySection">
+      <div class="step-row">
+        <div class="step-badge gold">2</div>
+        <div>
+          <div class="step-heading" id="fyHeading">Select Financial Year</div>
+          <div class="step-hint">Click a year card to open the dashboard</div>
+        </div>
+      </div>
+      <div class="fy-grid" id="fyGrid"></div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  &copy; 2025&nbsp;<strong>United Fashion and Retail Pvt. Ltd.</strong>&nbsp;&mdash;&nbsp;Internal Financial Portal
+</footer>
+
+<script>
+const UNITS = [
+  {
+    id: 1,
+    roman: 'I',
+    dashboards: {}
+  },
+  {
+    id: 2,
+    roman: 'II',
+    dashboards: {
+      'FY 2024–25': 'dashboards/unit2_fy2425.html',
+      'FY 2025–26': 'dashboards/unit2_fy2526.html'
+    }
+  },
+  {
+    id: 3,
+    roman: 'III',
+    dashboards: {
+      'FY 2025–26': 'dashboards/unit3_fy2526.html'
+    }
+  },
+  {
+    id: 4,
+    roman: 'IV',
+    dashboards: {
+      'FY 2024–25': 'dashboards/unit4_fy2425.html',
+      'FY 2025–26': 'dashboards/unit4_fy2526.html'
+    }
+  }
+];
+
+const ALL_FY = ['FY 2024–25', 'FY 2025–26'];
+let selectedUnit = null;
+
+function renderUnits() {
+  const grid = document.getElementById('unitGrid');
+  grid.innerHTML = UNITS.map(u => {
+    const keys = Object.keys(u.dashboards);
+    const has = keys.length > 0;
+    const isActive = selectedUnit === u.id;
+    const pills = has
+      ? keys.map(fy => `<span class="unit-pill">${fy}</span>`).join('')
+      : `<span class="soon-badge">Coming Soon</span>`;
+
+    return `<div class="unit-card ${has ? '' : 'coming-soon'} ${isActive ? 'active' : ''}"
+         ${has ? `onclick="selectUnit(${u.id})"` : ''}>
+      <div class="check-icon">
+        <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+          <polyline points="2,6 5,9 10,3" stroke="${'#0F1E52'}" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="unit-num">${u.roman}</div>
+      <div class="unit-label">Unit ${u.id}</div>
+      <div class="unit-pills">${pills}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectUnit(id) {
+  selectedUnit = id;
+  renderUnits();
+  renderFY();
+  const sec = document.getElementById('fySection');
+  sec.classList.remove('hidden');
+  setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+}
+
+function renderFY() {
+  const unit = UNITS.find(u => u.id === selectedUnit);
+  if (!unit) return;
+
+  document.getElementById('fyHeading').textContent =
+    `Financial Year — Unit ${unit.roman}`;
+
+  document.getElementById('fyGrid').innerHTML = ALL_FY.map(fy => {
+    const file = unit.dashboards[fy];
+    const avail = !!file;
+    const shortYear = fy.replace('FY ', '');
+
+    return `<div class="fy-card ${avail ? '' : 'unavailable'}"
+       ${avail ? `onclick="window.location.href='${file}'"` : ''}>
+      <div class="fy-year">${shortYear}</div>
+      <div class="fy-type">Financial Year</div>
+      <div class="fy-meta ${avail ? 'available' : 'unavailable'}">
+        <span class="fy-dot ${avail ? 'available' : 'unavailable'}"></span>
+        <span class="fy-cta">${avail ? 'Open Dashboard →' : 'Coming Soon'}</span>
+      </div>
+      ${avail ? `<div class="fy-arrow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+renderUnits();
+</script>
+</body>
+</html>

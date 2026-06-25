@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UTM Unit II — FY 2024–25</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f2f7;--surface:#ffffff;--card:#ffffff;--border:#dde1ec;
+  --text:#1a1a2e;--muted:#6b7394;--dim:#c8cce0;
+  --green:#0b8f5e;--green2:#0a7a50;--red:#d63557;--amber:#d97706;
+  --blue:#2563eb;--purple:#7c3aed;--cyan:#0891b2;
+  --green-bg:#d1fae5;--red-bg:#fee2e2;--amber-bg:#fef3c7;
+  --shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+.header{padding:20px 32px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);}
+.header h1{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.3px;color:var(--text);}
+.fy{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;}
+.header p{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px;letter-spacing:.05em;}
+.header-r{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-align:right;line-height:1.6;}
+.filter-bar{padding:12px 32px;display:flex;gap:16px;align-items:center;border-bottom:1px solid var(--border);flex-wrap:wrap;background:var(--surface);}
+.fl{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;white-space:nowrap;}
+.chips{display:flex;gap:5px;flex-wrap:wrap;}
+.chip{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;font-family:'Syne',sans-serif;}
+.chip:hover{border-color:var(--dim);color:var(--text);}
+.chip.active{border-color:var(--cc);color:var(--cc);background:color-mix(in srgb,var(--cc) 12%,transparent);}
+.sep{width:1px;height:22px;background:var(--border);}
+.nav{display:flex;padding:0 32px;border-bottom:1px solid var(--border);background:var(--surface);}
+.tab{padding:13px 20px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;font-family:'DM Mono',monospace;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.page{display:none;padding:24px 32px 60px;animation:fi .2s ease;}
+.page.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.g4x2{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.row{display:flex;gap:14px;}.col{flex:1;}
+.mt{margin-top:18px;}.mt2{margin-top:28px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));}
+.kpi-lbl{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.kpi-val{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text);margin:5px 0 1px;line-height:1;}
+.kpi-sub{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.kpi-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-top:4px;}
+.badge-up{background:var(--green-bg);color:var(--green);}
+.badge-dn{background:var(--red-bg);color:var(--red);}
+.badge-am{background:var(--amber-bg);color:var(--amber);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);}
+.ctitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;}
+.chart-wrap{position:relative;width:100%;}
+canvas{display:block;width:100%!important;}
+#tooltip{position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text);z-index:9999;opacity:0;transition:opacity .12s;max-width:230px;line-height:1.7;box-shadow:0 8px 32px rgba(0,0,0,.15);}
+#tooltip.show{opacity:1;}
+#tooltip .tt-title{font-weight:700;color:var(--blue);margin-bottom:5px;font-size:12px;}
+#tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;}
+#tooltip .tt-key{color:var(--muted);}
+#tooltip .tt-val{color:var(--text);font-weight:600;}
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bar-row{display:flex;align-items:center;gap:8px;}
+.bar-name{font-size:11px;color:var(--muted);width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'DM Mono',monospace;flex-shrink:0;}
+.bar-track{flex:1;background:var(--border);border-radius:4px;height:9px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s ease;}
+.bar-val{font-size:11px;color:var(--text);font-family:'DM Mono',monospace;white-space:nowrap;min-width:70px;text-align:right;}
+.donut-wrap{display:flex;align-items:center;gap:20px;}
+.donut-legend{display:flex;flex-direction:column;gap:7px;flex:1;}
+.leg-row{display:flex;align-items:center;gap:7px;font-size:11px;font-family:'DM Mono',monospace;}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.leg-lbl{color:var(--muted);flex:1;}
+.leg-val{color:var(--text);font-weight:600;}
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead th{background:#f5f6fb;color:var(--muted);font-size:10px;letter-spacing:.07em;text-transform:uppercase;padding:9px 12px;text-align:left;font-family:'DM Mono',monospace;white-space:nowrap;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid rgba(180,185,210,.25);}
+tbody tr:hover{background:rgba(37,99,235,.03);}
+tbody td{padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap;}
+.num{text-align:right;}
+.td-g{color:var(--green);font-weight:600;}
+.td-r{color:var(--red);font-weight:600;}
+.td-y{color:var(--amber);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:7px;font-size:10px;font-weight:700;}
+.tg{background:var(--green-bg);color:var(--green);}
+.ty{background:var(--amber-bg);color:var(--amber);}
+.tr{background:var(--red-bg);color:var(--red);}
+.sleg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.sl-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.sl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.insight{border-radius:10px;padding:12px 16px;font-size:12px;color:var(--text);margin-bottom:18px;line-height:1.7;}
+.insight.g{background:linear-gradient(90deg,rgba(11,143,94,.07),transparent);border:1px solid rgba(11,143,94,.2);}
+.insight.y{background:linear-gradient(90deg,rgba(217,119,6,.07),transparent);border:1px solid rgba(217,119,6,.2);}
+.insight.b{background:linear-gradient(90deg,rgba(37,99,235,.07),transparent);border:1px solid rgba(37,99,235,.2);}
+.insight strong{color:var(--green);}
+.insight.y strong{color:var(--amber);}
+.insight.b strong{color:var(--blue);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
+.badge{display:inline-block;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-r{background:rgba(225,29,72,.12);color:#e11d48}
+.badge-y{background:rgba(217,119,6,.12);color:#d97706}
+.reimb-row td:first-child{color:var(--muted);font-size:11px;padding-left:32px}
+.tog-btn{padding:2px 10px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:11px;color:var(--muted)}
+.tog-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.party-row{display:none;background:rgba(0,0,0,.02)}
+.party-row.visible{display:table-row}
+.party-row td:first-child{color:var(--muted);font-size:10.5px;padding-left:48px}
+/* collapsible table rows */
+.cat-hdr{cursor:pointer;user-select:none;background:#f5f6fb!important;}
+.cat-hdr:hover{background:#eef0f8!important;}
+.cat-toggle{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:3px;background:rgba(37,99,235,.1);color:var(--blue);font-size:10px;font-weight:700;margin-right:6px;transition:transform .2s;font-family:'DM Mono',monospace;flex-shrink:0;}
+.cat-hdr.open .cat-toggle{transform:rotate(90deg);}
+.sub-row{display:none;}
+.sub-row.visible{display:table-row;}
+.sub-row td:first-child{padding-left:36px!important;color:var(--muted);font-size:10.5px;}
+.sub-row td{font-size:10.5px!important;color:var(--muted);}
+.sub-row{background:#fafbff!important;}
+.sub-row:hover{background:rgba(37,99,235,.025)!important;}
+.cat-hdr td:first-child{display:flex;align-items:center;}
+@media(max-width:900px){.g4,.g4x2{grid-template-columns:1fr 1fr;}.g3{grid-template-columns:1fr;}.g2{grid-template-columns:1fr;}.row{flex-direction:column;}}
+
+.vnd-row{display:none;background:#f7f8fe!important;}
+.vnd-row.visible{display:table-row;}
+.vnd-row td:first-child{padding-left:60px!important;color:var(--muted);font-size:10px;}
+.vnd-row td{font-size:10px!important;color:var(--muted);}
+.vnd-row:hover{background:rgba(37,99,235,.015)!important;}
+.sub-row.has-vendors td:first-child{cursor:pointer;}
+.sub-row.has-vendors td:first-child::before{content:'▶ ';font-size:8px;color:var(--blue);margin-right:2px;}
+.sub-row.has-vendors.sv-open td:first-child::before{content:'▼ ';font-size:8px;}
+</style>
+</head>
+<body>
+<div id="tooltip"><div class="tt-title" id="tt-title"></div><div id="tt-body"></div></div>
+
+<div class="header">
+  <div>
+    <h1>United Textile Mills Pvt. Ltd. &mdash; <span class="fy">FY 2024–25</span></h1>
+    <p>GARMENTS DIVISION · UNIT II · TRADING + P&amp;L DATA</p>
+  </div>
+  <div class="header-r" id="hdr-summary">Loading…</div>
+</div>
+
+<div class="filter-bar">
+  <span class="fl">Party</span>
+  <div class="chips" id="party-chips"></div>
+  <div class="sep"></div>
+  <span class="fl">Month</span>
+  <div class="chips" id="mo-chips"></div>
+</div>
+
+<div class="nav">
+  <div class="tab active" onclick="switchTab('overview',this)">Overview</div>
+  <div class="tab" onclick="switchTab('sales',this)">Sales Deep Dive</div>
+  <div class="tab" onclick="switchTab('returns',this)">Returns &amp; Adjustments</div>
+  <div class="tab" onclick="switchTab('ops',this)">Operations</div>
+  <div class="tab" onclick="switchTab('purchase',this)">Purchase &amp; Margin</div>
+  <div class="tab" onclick="switchTab('indirect',this)">Indirect Costs (P&amp;L)</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="insight g" id="ov-ins"></div>
+  <div class="g4x2" id="ov-kpi-row1"></div>
+  <div class="g4x2 mt" id="ov-kpi-row2"></div>
+  <div class="row mt2">
+    <div class="col" style="flex:1.5">
+      <div class="card">
+        <div class="ctitle">Party-wise Gross Sales (₹ Lakhs)</div>
+        <div class="chart-wrap"><canvas id="c-ov-party" height="200"></canvas></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="height:100%">
+        <div class="ctitle">Party Revenue Share</div>
+        <div class="donut-wrap" style="margin-top:8px">
+          <svg id="svg-ov-donut" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
+          <div class="donut-legend" id="ov-dleg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Monthly Gross Sales vs Direct COGS vs Gross Margin (₹ Lakhs)</div>
+    <div class="chart-wrap"><canvas id="c-ov-margin" height="160"></canvas></div>
+  </div>
+  <div class="mt2 card"><div class="ctitle">Return Rate % by Party</div><div class="bar-chart mt" id="ov-ret"></div></div>
+</div>
+
+<!-- SALES DEEP DIVE -->
+<div class="page" id="page-sales">
+  <div class="insight g" id="sd-ins"></div>
+  <div class="g4" id="sd-kpi"></div>
+  <div class="mt2 card"><div class="ctitle">Monthly Gross Sales Trend (₹ Lakhs)</div><div class="chart-wrap"><canvas id="c-sd-line" height="160"></canvas></div></div>
+  <div class="mt2">
+    <div class="tbl-wrap"><table>
+      <thead><tr>
+        <th>Party</th><th class="num">Gross Sales (₹)</th><th class="num">Returns (₹)</th>
+        <th class="num">Adj / Notes (₹)</th><th class="num">Net Sales (₹)</th>
+        <th class="num">Pcs</th><th class="num">Return %</th><th class="num">Share %</th>
+      </tr></thead>
+      <tbody id="sd-tbody"></tbody>
+    </table></div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Monthly Sales by Source (₹ Lakhs)</div>
+    <div class="sleg" id="sd-sleg"></div>
+    <div class="chart-wrap" style="margin-top:8px"><canvas id="c-sd-stacked" height="160"></canvas></div>
+  </div>
+</div>
+
+<!-- RETURNS -->
+<div class="page" id="page-returns">
+  <div class="insight y" id="rt-ins"></div>
+  <div class="g3" id="rt-kpi"></div>
+  <div class="row mt2">
+    <div class="col" style="flex:1.4"><div class="card"><div class="ctitle">Monthly Returns + Adjustments vs Gross Sales (₹ Lakhs)</div><div class="chart-wrap"><canvas id="c-rt-trend" height="200"></canvas></div></div></div>
+    <div class="col"><div class="card"><div class="ctitle">Effective Return+Adj Rate % by Month</div><div class="chart-wrap"><canvas id="c-rt-pct" height="200"></canvas></div></div></div>
+  </div>
+  <div class="mt2 card"><div class="ctitle">Returns by Party (₹)</div><div class="bar-chart mt" id="rt-co-bars"></div></div>
+  <div class="row mt2">
+    <div class="col"><div class="card"><div class="ctitle">Sales Return - By Party</div>
+      <div class="tbl-wrap" style="margin-top:10px"><table><thead><tr><th>Party</th><th class="num">Returns (₹)</th></tr></thead><tbody id="returns-tbody"></tbody></table></div>
+    </div></div>
+    <div class="col"><div class="card"><div class="ctitle">Shortage - By Party</div>
+      <div class="tbl-wrap" style="margin-top:10px"><table><thead><tr><th>Party</th><th class="num">Amount (₹)</th></tr></thead><tbody id="notes-tbody"></tbody></table></div>
+    </div></div>
+  </div>
+  <div class="mt2 card">
+    <div class="ctitle">Credit Note Reason Breakdown — Garment Sales FY25
+      <span style="float:right;display:flex;gap:6px;align-items:center">
+        <button class="tog-btn active" id="tog-all" onclick="toggleRetFilter('all')">All</button>
+        <button class="tog-btn" id="tog-short" onclick="toggleRetFilter('shortage')">Shortage Only</button>
+        <button class="tog-btn" id="tog-cancel" onclick="toggleRetFilter('cancel')">Cancelled Only</button>
+      </span>
+    </div>
+    <div id="ret-reason-summary" style="margin:8px 0;font-size:12px;color:var(--muted)"></div>
+    <div class="tbl-wrap" style="max-height:400px;overflow-y:auto">
+      <table>
+        <thead><tr><th>Party Name</th><th>Invoice No</th><th class="num">Pcs</th><th class="num">Amount (₹)</th><th>Type</th><th>Reason</th></tr></thead>
+        <tbody id="ret-reason-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- OPERATIONS -->
+<div class="page" id="page-ops">
+  <div class="insight g" id="op-ins"></div>
+  <div class="g3" id="op-kpi"></div>
+  <div class="mt2 card">
+    <div class="ctitle">Stitching Charges — Annual Total (₹ Lakhs)</div>
+    <div class="bar-chart mt" id="op-sv-bars"></div>
+  </div>
+  <div class="mt2">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Stitching Vendor</th><th class="num">FY Total Billed (₹)</th><th class="num">Share %</th></tr></thead>
+      <tbody id="op-stbl"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- PURCHASE & MARGIN -->
+<div class="page" id="page-purchase">
+  <div class="insight y" id="pu-ins"></div>
+  <div class="g4" id="pu-kpi1"></div>
+  <div class="mt2 card">
+    <div class="ctitle">Monthly Net Sales vs Direct COGS vs Gross Margin (₹ Lakhs)</div>
+    <div class="chart-wrap"><canvas id="c-pu-margin" height="180"></canvas></div>
+  </div>
+  <div class="row mt2">
+    <div class="col"><div class="card"><div class="ctitle">Direct COGS Category Share (Annual)</div>
+      <div class="donut-wrap" style="margin-top:10px">
+        <svg id="svg-pu-donut" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
+        <div id="pu-dleg" class="donut-legend"></div>
+      </div>
+    </div></div>
+    <div class="col" style="flex:1.5"><div class="card"><div class="ctitle">Monthly Gross Margin % (Net Sales − Direct COGS)</div><div class="chart-wrap"><canvas id="c-pu-pct" height="200"></canvas></div></div></div>
+  </div>
+  <div class="mt2">
+    <div class="tbl-wrap">
+      <table id="pu-ctbl-table">
+        <thead><tr><th>COGS Category</th><th class="num">Annual (₹)</th><th class="num">Share%</th>
+          <th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th><th class="num">Jul</th>
+          <th class="num">Aug</th><th class="num">Sep</th><th class="num">Oct</th><th class="num">Nov</th>
+          <th class="num">Dec</th><th class="num">Jan</th><th class="num">Feb</th><th class="num">Mar</th>
+        </tr></thead>
+        <tbody id="pu-ctbl"></tbody>
+      </table>
+    </div>
+  </div>
+  <div style="margin-top:10px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">⚠ Stock Adj: large opening stock in Apr (₹13.7Cr) booked in Trading causes large Apr COGS swing; Jan/Feb reversal of interim closing stock; Mar final closing stock deflates Mar COGS. Annual COGS (₹62.89Cr) is accurate.</div>
+</div>
+
+<!-- INDIRECT COSTS (P&L) -->
+<div class="page" id="page-indirect">
+  <div class="insight b" id="ic-ins"></div>
+  <div class="g4" id="ic-kpi"></div>
+  <div class="row mt2">
+    <div class="col"><div class="card"><div class="ctitle">Indirect Cost Category Share</div>
+      <div class="donut-wrap" style="margin-top:10px">
+        <svg id="svg-ic-donut" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
+        <div id="ic-dleg" class="donut-legend"></div>
+      </div>
+    </div></div>
+    <div class="col" style="flex:1.5"><div class="card"><div class="ctitle">Monthly Indirect Cost by Category (₹ Lakhs)</div><div class="chart-wrap"><canvas id="c-ic-stacked" height="220"></canvas></div></div></div>
+  </div>
+  <div class="mt2">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Category / Line Item</th><th class="num">Annual (₹)</th>
+          <th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th><th class="num">Jul</th>
+          <th class="num">Aug</th><th class="num">Sep</th><th class="num">Oct</th><th class="num">Nov</th>
+          <th class="num">Dec</th><th class="num">Jan</th><th class="num">Feb</th><th class="num">Mar</th>
+        </tr></thead>
+        <tbody id="ic-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const D = {"months":["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"],"parties":["Reliance","D Mart","Lifestyle","Nexon","Mogli","Others"],"party_gross":{"Reliance":468807254,"D Mart":68865084,"Lifestyle":79781930,"Nexon":93855215,"Mogli":4529220,"Others":12076757},"party_returns":{"Reliance":1266547,"D Mart":331920,"Lifestyle":625902,"Nexon":387347,"Mogli":0,"Others":40162},"party_notes":{"Reliance":786554,"D Mart":2823104,"Lifestyle":14100,"Nexon":976706,"Mogli":0,"Others":149368},"party_src":{"Reliance":{"Garment Sales":468766931,"GST Debit Notes":40229},"D Mart":{"Garment Sales":68865084},"Lifestyle":{"Garment Sales":79779345,"GST Debit Notes":2585},"Nexon":{"Garment Sales":93855215},"Mogli":{"Garment Sales":4529219},"Others":{"Garment Sales":8887566,"Grey Sales":2394681,"GST Debit Notes":794511}},"party_pcs":{"Reliance":1671904,"D Mart":242244,"Lifestyle":335934,"Nexon":304331,"Mogli":16890,"Others":26722},"party_gross_nonacc":{"Reliance":468807254,"D Mart":68865084,"Lifestyle":79781930,"Nexon":93855215,"Mogli":4529220,"Others":12076757},"mth":{"Apr":{"gross":33100078,"returns":14130,"notes":0,"net_sales":33085948,"direct_cogs":166362233,"indirect":4828364,"gross_profit":-133276285,"net_profit":-138104649,"cogs_cat":{"Grey Fabric":7813100,"Finish Fabric":8775902,"Garment & Emb Purchase":20031,"Accessories":1724936,"Stitching & Job Work":4141907,"Embroidery Charges":2514251,"Process Charges":4412814,"Packing & Cutting":830536,"Transportation & Delivery":871265,"Other Direct":160877,"Stock Adjustments":135096615},"pl_cat":{"Personnel":2727118,"Finance":801831,"Professional Fees":431600,"Admin & Office":328540,"Rent & Property":491394,"Insurance":0,"Other Income (-)":2403,"Other Indirect":45478},"src":{"Garment Sales":33100078}},"May":{"gross":54109032,"returns":328707,"notes":0,"net_sales":53780325,"direct_cogs":59977459,"indirect":4779693,"gross_profit":-6197134,"net_profit":-10976827,"cogs_cat":{"Grey Fabric":26231999,"Finish Fabric":12728885,"Garment & Emb Purchase":-983,"Accessories":2652080,"Stitching & Job Work":9654091,"Embroidery Charges":1987620,"Process Charges":3973468,"Packing & Cutting":1776856,"Transportation & Delivery":881790,"Other Direct":91652,"Stock Adjustments":0},"pl_cat":{"Personnel":2947094,"Finance":988069,"Professional Fees":10800,"Admin & Office":308286,"Rent & Property":348666,"Insurance":8277,"Other Income (-)":116522,"Other Indirect":51979},"src":{"Garment Sales":54109032}},"Jun":{"gross":77687537,"returns":52906,"notes":288000,"net_sales":77346631,"direct_cogs":82827497,"indirect":5437249,"gross_profit":-5480866,"net_profit":-10918115,"cogs_cat":{"Grey Fabric":25646782,"Finish Fabric":13799453,"Garment & Emb Purchase":1058151,"Accessories":3346407,"Stitching & Job Work":19872307,"Embroidery Charges":8077076,"Process Charges":8068225,"Packing & Cutting":1342709,"Transportation & Delivery":1476706,"Other Direct":139682,"Stock Adjustments":0},"pl_cat":{"Personnel":3835759,"Finance":606637,"Professional Fees":184500,"Admin & Office":314004,"Rent & Property":365956,"Insurance":0,"Other Income (-)":10356,"Other Indirect":120037},"src":{"Garment Sales":77036590,"Grey Sales":650947}},"Jul":{"gross":75930828,"returns":589773,"notes":255376,"net_sales":74960664,"direct_cogs":77726236,"indirect":5881330,"gross_profit":-2765572,"net_profit":-8646902,"cogs_cat":{"Grey Fabric":19796341,"Finish Fabric":19833728,"Garment & Emb Purchase":1344149,"Accessories":4650908,"Stitching & Job Work":13040302,"Embroidery Charges":5797914,"Process Charges":8500796,"Packing & Cutting":2650771,"Transportation & Delivery":2046627,"Other Direct":64700,"Stock Adjustments":0},"pl_cat":{"Personnel":3600699,"Finance":843794,"Professional Fees":500,"Admin & Office":241737,"Rent & Property":582622,"Insurance":227242,"Other Income (-)":360040,"Other Indirect":24696},"src":{"Garment Sales":75802559,"Grey Sales":95285,"GST Debit Notes":32984}},"Aug":{"gross":95610517,"returns":117913,"notes":149368,"net_sales":95309632,"direct_cogs":63809599,"indirect":5443538,"gross_profit":31500033,"net_profit":26056495,"cogs_cat":{"Grey Fabric":16674906,"Finish Fabric":10349677,"Garment & Emb Purchase":-1042366,"Accessories":3189644,"Stitching & Job Work":11831627,"Embroidery Charges":9917573,"Process Charges":8864658,"Packing & Cutting":2804327,"Transportation & Delivery":1103012,"Other Direct":116540,"Stock Adjustments":0},"pl_cat":{"Personnel":3811225,"Finance":966320,"Professional Fees":27900,"Admin & Office":278266,"Rent & Property":106716,"Insurance":0,"Other Income (-)":183408,"Other Indirect":69703},"src":{"Garment Sales":95610243,"GST Debit Notes":274}},"Sep":{"gross":105300297,"returns":167654,"notes":974890,"net_sales":104157753,"direct_cogs":86778243,"indirect":6374791,"gross_profit":17379510,"net_profit":11004719,"cogs_cat":{"Grey Fabric":25829358,"Finish Fabric":8081517,"Garment & Emb Purchase":21441,"Accessories":3599635,"Stitching & Job Work":33795617,"Embroidery Charges":4065070,"Process Charges":7416671,"Packing & Cutting":2029180,"Transportation & Delivery":1879838,"Other Direct":59915,"Stock Adjustments":0},"pl_cat":{"Personnel":3882342,"Finance":1186937,"Professional Fees":200000,"Admin & Office":432534,"Rent & Property":543906,"Insurance":42822,"Other Income (-)":34960,"Other Indirect":51290},"src":{"Garment Sales":105300297}},"Oct":{"gross":77962859,"returns":246685,"notes":0,"net_sales":77642114,"direct_cogs":66011257,"indirect":7782164,"gross_profit":11630857,"net_profit":3848693,"cogs_cat":{"Grey Fabric":16454118,"Finish Fabric":10166745,"Garment & Emb Purchase":0,"Accessories":2741652,"Stitching & Job Work":19347321,"Embroidery Charges":2332348,"Process Charges":11081072,"Packing & Cutting":2140260,"Transportation & Delivery":1631455,"Other Direct":116286,"Stock Adjustments":0},"pl_cat":{"Personnel":4596077,"Finance":1114632,"Professional Fees":69000,"Admin & Office":900454,"Rent & Property":316149,"Insurance":356859,"Other Income (-)":403957,"Other Indirect":25036},"src":{"Garment Sales":77885232,"GST Debit Notes":77627}},"Nov":{"gross":43030004,"returns":642905,"notes":425984,"net_sales":41961115,"direct_cogs":50186392,"indirect":3362723,"gross_profit":-8225277,"net_profit":-11588000,"cogs_cat":{"Grey Fabric":16645082,"Finish Fabric":10938068,"Garment & Emb Purchase":1208,"Accessories":4388886,"Stitching & Job Work":11412632,"Embroidery Charges":785188,"Process Charges":3942417,"Packing & Cutting":754249,"Transportation & Delivery":1268401,"Other Direct":50261,"Stock Adjustments":0},"pl_cat":{"Personnel":1221873,"Finance":1324832,"Professional Fees":205450,"Admin & Office":292470,"Rent & Property":-95750,"Insurance":0,"Other Income (-)":214491,"Other Indirect":199357},"src":{"Garment Sales":42329839,"GST Debit Notes":700165}},"Dec":{"gross":28171647,"returns":3552,"notes":496392,"net_sales":27671703,"direct_cogs":49801232,"indirect":8789318,"gross_profit":-22129529,"net_profit":-30918847,"cogs_cat":{"Grey Fabric":13875903,"Finish Fabric":4337808,"Garment & Emb Purchase":0,"Accessories":3296952,"Stitching & Job Work":16056168,"Embroidery Charges":1686439,"Process Charges":8481379,"Packing & Cutting":1409718,"Transportation & Delivery":609682,"Other Direct":47182,"Stock Adjustments":0},"pl_cat":{"Personnel":5733933,"Finance":1374445,"Professional Fees":45000,"Admin & Office":394124,"Rent & Property":523451,"Insurance":646346,"Other Income (-)":28581,"Other Indirect":43438},"src":{"Garment Sales":28145372,"GST Debit Notes":26275}},"Jan":{"gross":42565045,"returns":184154,"notes":1059466,"net_sales":41290832,"direct_cogs":-143582248,"indirect":6531921,"gross_profit":184873080,"net_profit":178341159,"cogs_cat":{"Grey Fabric":8285735,"Finish Fabric":3463357,"Garment & Emb Purchase":775288,"Accessories":3292168,"Stitching & Job Work":8501076,"Embroidery Charges":2239581,"Process Charges":3957776,"Packing & Cutting":898427,"Transportation & Delivery":948475,"Other Direct":102196,"Stock Adjustments":-176046328},"pl_cat":{"Personnel":3336894,"Finance":1377706,"Professional Fees":681615,"Admin & Office":454618,"Rent & Property":339610,"Insurance":0,"Other Income (-)":307146,"Other Indirect":34332},"src":{"Garment Sales":41987272,"Grey Sales":577773}},"Feb":{"gross":40633094,"returns":118947,"notes":1068660,"net_sales":39445487,"direct_cogs":213514148,"indirect":6183883,"gross_profit":-174068661,"net_profit":-180252544,"cogs_cat":{"Grey Fabric":7888841,"Finish Fabric":5532110,"Garment & Emb Purchase":2684856,"Accessories":1395282,"Stitching & Job Work":14038815,"Embroidery Charges":864133,"Process Charges":3290620,"Packing & Cutting":1150522,"Transportation & Delivery":515691,"Other Direct":106950,"Stock Adjustments":176046328},"pl_cat":{"Personnel":1991453,"Finance":1189213,"Professional Fees":2019050,"Admin & Office":287359,"Rent & Property":354334,"Insurance":0,"Other Income (-)":307360,"Other Indirect":35114},"src":{"Garment Sales":40633094}},"Mar":{"gross":53814524,"returns":184552,"notes":31696,"net_sales":53598276,"direct_cogs":-152917726,"indirect":14510702,"gross_profit":206516002,"net_profit":192005300,"cogs_cat":{"Grey Fabric":1799583,"Finish Fabric":6610808,"Garment & Emb Purchase":1627123,"Accessories":1980361,"Stitching & Job Work":17547236,"Embroidery Charges":2344296,"Process Charges":5253472,"Packing & Cutting":1094437,"Transportation & Delivery":1591200,"Other Direct":585045,"Stock Adjustments":-193351287},"pl_cat":{"Personnel":4726674,"Finance":6070884,"Professional Fees":1359855,"Admin & Office":624744,"Rent & Property":1468796,"Insurance":-255359,"Other Income (-)":435852,"Other Indirect":79256},"src":{"Garment Sales":52743848,"Grey Sales":1070676}}},"pl_annual":{"Personnel":42411141,"Finance":17845300,"Professional Fees":5235270,"Admin & Office":4857137,"Rent & Property":5345850,"Insurance":1026187,"Other Income (-)":-2405076,"Other Indirect":779716},"reimb_detail":{"Bank Charges":{"Nesl-recovery-2023-24":382,"RTGS Chrgs":100,"OTHERS":1804},"Bank Interest (  C C  A/C)":{"923030008474770:Int.Coll:01-07-2024 to 31-07-2024":421671,"OTHERS":6901581},"Bank Interest (Tod Loan Cc)":{"INT 01.04.2024 TO 05.04.2024":9824},"Bill Discounting Charges - Hsbc":{"OTHERS":3455980},"Computer Exp.":{"MANOJ SINGH":3350},"Conveyance A/c":{"HITESHREE":1282,"KAMLESH RAI":50194,"MANOJ SINGH":2650,"RAMASHISH":175,"RAMJI TRIPATHI":880,"SACHIN GOPALE":5541,"SANTOSH PAWAR":1701},"Cutting & Packing Expences":{"MANOJ SINGH":121207},"Electricity Exp.a/c":{"MANOJ SINGH":9550},"Gratuity - Staff":{"OTHERS":944276},"Insurance Chargers A/c - Office":{"OTHERS":17758},"Motor Bike Exp A/C -6964":{"RAMJI TRIPATHI":963},"Motor Bike Exp A/C- 8535":{"RAMJI TRIPATHI":845,"SURESH KHADE":400},"Motor Vehical Expenses A\C":{"RAMJI TRIPATHI":4381},"Mukadam & Hamali Charges":{"ARUN RAMCHANDRA KHOT":1560,"KAMLESH RAI":700,"KRISHNA KUMAR":59435,"KRISHNA RAI":62580,"KRISHNA ROY VAPI":21190,"MANOJ SINGH":79370,"RAMCHANDRA RAJESHWAR RAI":11698,"RUPESH LAD":4340},"Office Expense A/c":{"MANOJ SINGH":5404,"RAMJI TRIPATHI":150,"SRINIVAS JAVVAJI":14040,"OTHERS":8450},"Packing Material A/c":{"ARUN RAMCHANDRA KHOT":1396},"Postage & Courier Exp. A/c":{"KAMLESH RAI":1708,"MANOJ SINGH":3944,"RAMJI TRIPATHI":2527,"RUPESH LAD":450,"SANTOSH PAWAR":224,"SURESH VAPI":1500,"SURESH KHADE":29774},"Printing & Stationery Exp. A/c":{"KAMLESH RAI":40,"MANOJ SINGH":3825,"RAMJI TRIPATHI":2057,"SURESH KHADE":940},"Processing & Franking Exp":{"OTHERS":304251},"Professional Fees A/C":{"OTHERS":14715},"Repair & Maintainance ( Other)":{"HITESHREE":668,"MANOJ SINGH":53640,"RAMJI TRIPATHI":1360,"SHANKAR SONI":3700},"Repair & Maintainance - Office":{"RAMJI TRIPATHI":180},"Repair & Maintainance - Warehouse":{"MANOJ SINGH":6650},"Roc Challan Payment":{"DPT 3 CHALLAN":500},"Sampling Exp.":{"HITESHREE":28378,"KAMLESH RAI":1066,"MANOJ SINGH":8500,"RAMJI TRIPATHI":40,"VARNIKA GUPTA":3069,"VASANT PAWAR":2970},"Staff Welfare  A\C":{"ARVIND SINGH":26400,"ASHISH":5368,"RAMKRISHNA POOJARI":6328,"UMASHANKAR YADAV":2500,"HARE KRISHNA TEA STALL":5524,"NARSHIMMA KOTHA PALLY":13176,"RAMKRISHNA S. POOJARI":5224,"SRINIVAS JAVVAJI":12000,"RAMESH CHANDRA YADAV":11136,"HIRALAL SHARMA":78000,"HITESHREE":6764,"KAMLESH RAI":200,"MANOJ SINGH":260,"RAMJI TRIPATHI":1706,"SANTOSH PAWAR":1325,"SURESH KHADE":16578},"Stamp Duty & Registration":{"OTHERS":419300},"Telephone Expenses":{"KAMLESH RAI":4000,"MANOJ SINGH":6363,"RAMASHISH":500,"RAMJI TRIPATHI":2700,"SANTOSH PAWAR":300},"Transportation Charges":{"ARUN RAMCHANDRA KHOT":34220,"HITESHREE":835,"KAMLESH RAI":2060,"MANOJ SINGH":409648,"RAJNEESH ANAND CHAUDHARY":262200,"RAMESHWAR":4800,"RUPESH LAD":81490,"SURESH VAPI":7000,"RAMJI TRIPATHI":2600},"Travelling Expenses (Domestic)":{"ABDUL AKZ":6272,"ARCHIT BHANDARI":57148,"RAMASHISH THAKUR":31831,"GANESH PATIL":17754,"KAMLESH RAI":15258,"MANOJ SINGH":1011,"PRIYANKA SACHDEV":5800,"RAJURAMCHANDRA CHOUDHARY":27625,"RAMASHISH":19283,"SANJEEV ATTAL":54798,"SHREE AMBIKA TRAVELS":6830,"SUGNARAM":7614}},"returns_data":[{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (MUMBAI)","inv":"23022","pcs":1,"amount":664,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (MUMBAI)","inv":"22882","pcs":2,"amount":527,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22591","pcs":1,"amount":263,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22880","pcs":1,"amount":263,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22881","pcs":2,"amount":527,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23050","pcs":2,"amount":527,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23034","pcs":6,"amount":1580,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23036","pcs":1,"amount":263,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22482","pcs":11,"amount":3686,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. - BADLI","inv":"22252","pcs":3,"amount":965,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"22189","pcs":1,"amount":261,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"22233","pcs":1,"amount":331,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"22231","pcs":1,"amount":331,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. - BADLI","inv":"22089","pcs":2,"amount":635,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD.","inv":"22071","pcs":12,"amount":3307,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23089","pcs":1,"amount":263,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23088","pcs":4,"amount":1053,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23091","pcs":1,"amount":276,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23075","pcs":1,"amount":263,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23074","pcs":2,"amount":527,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23073","pcs":1,"amount":326,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23","pcs":2,"amount":527,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"24","pcs":1,"amount":263,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"25","pcs":6,"amount":1580,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"22939","pcs":6,"amount":1428,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23017","pcs":2,"amount":476,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"22940","pcs":5,"amount":1190,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"22874","pcs":60,"amount":18720,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"22877","pcs":3,"amount":714,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22639","pcs":1,"amount":261,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"22890","pcs":8,"amount":2120,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (URBAN) BANGALORE","inv":"23018","pcs":2,"amount":476,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"22042","pcs":2,"amount":501,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (WEST BENGAL)","inv":"22016","pcs":1,"amount":375,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"22015","pcs":3,"amount":1125,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"21884","pcs":2,"amount":585,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"22012","pcs":1,"amount":359,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOSAKOTE)","inv":"29304","pcs":5,"amount":1415,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (ASSAM)","inv":"28501","pcs":5,"amount":804,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22565","pcs":11,"amount":2915,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"22950","pcs":58,"amount":12760,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23122","pcs":2,"amount":527,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23125","pcs":3,"amount":560,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23090","pcs":1,"amount":263,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23119","pcs":3,"amount":850,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22962","pcs":6,"amount":1580,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22952","pcs":9,"amount":2973,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22951","pcs":9,"amount":3232,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"22742","pcs":22,"amount":6864,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"22640","pcs":1,"amount":261,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. (VIJAYAWADA)","inv":"21782","pcs":1,"amount":488,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"21812","pcs":1,"amount":271,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"21814","pcs":1,"amount":271,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"21823","pcs":2,"amount":793,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"21826","pcs":2,"amount":491,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"22039","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"22034","pcs":2,"amount":470,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"20099","pcs":2,"amount":501,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22944","pcs":13,"amount":3094,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"22945","pcs":3,"amount":714,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"22959","pcs":1,"amount":234,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. - BADLI","inv":"22317","pcs":40,"amount":9822,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"21978","pcs":1,"amount":272,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"22011","pcs":13,"amount":4673,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"22014","pcs":1,"amount":359,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"22288","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD.","inv":"22033","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (PUNE)","inv":"22180","pcs":5,"amount":1174,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (WEST BENGAL)","inv":"22041","pcs":2,"amount":501,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"22172","pcs":1,"amount":323,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"22257","pcs":1,"amount":245,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"22281","pcs":3,"amount":783,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. (VIJAYAWADA)","inv":"22293","pcs":2,"amount":614,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"22291","pcs":2,"amount":614,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"22316","pcs":1,"amount":291,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOOGHLI)","inv":"22350","pcs":5,"amount":2259,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"22351","pcs":1,"amount":452,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"22393","pcs":3,"amount":778,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"22408","pcs":59,"amount":14489,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"22409","pcs":6,"amount":1473,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"22411","pcs":3,"amount":737,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOSAKOTE)","inv":"22412","pcs":1,"amount":246,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"22415","pcs":4,"amount":1162,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD.","inv":"22424","pcs":8,"amount":2388,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. - BADLI","inv":"22442","pcs":1,"amount":625,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (WEST BENGAL)","inv":"22450","pcs":1,"amount":293,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. - BADLI","inv":"22453","pcs":1,"amount":617,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"22460","pcs":3,"amount":936,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22486","pcs":1,"amount":270,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (PUNE)","inv":"22461","pcs":83,"amount":27851,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22700","pcs":12,"amount":3264,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"22753","pcs":1,"amount":268,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"22755","pcs":2,"amount":537,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"22759","pcs":1,"amount":268,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. - BADLI","inv":"22761","pcs":1,"amount":445,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22783","pcs":1,"amount":255,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"22872","pcs":31,"amount":8215,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22873","pcs":1,"amount":238,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"22875","pcs":62,"amount":14756,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"22878","pcs":15,"amount":3570,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"22894","pcs":6,"amount":1590,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22935","pcs":2,"amount":476,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"22937","pcs":7,"amount":1666,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (GHAZIABAD)","inv":"23002","pcs":3,"amount":705,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23170","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23176","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23172","pcs":5,"amount":1175,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23128","pcs":3,"amount":804,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23166","pcs":2,"amount":470,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - VADODARA","inv":"22958","pcs":60,"amount":29880,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"23124","pcs":2,"amount":1028,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (GHAZIABAD)","inv":"22900","pcs":2,"amount":440,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"22902","pcs":1,"amount":220,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"22948","pcs":37,"amount":8140,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"22932","pcs":1,"amount":268,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23001","pcs":6,"amount":1410,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23006","pcs":18,"amount":4230,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23011","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23004","pcs":10,"amount":2350,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23014","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"23346","pcs":12,"amount":3160,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22747","pcs":9,"amount":1680,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"21","pcs":11,"amount":3686,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"22073","pcs":8,"amount":2200,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"22073","pcs":9,"amount":4635,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"21401","pcs":23,"amount":8395,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23040","pcs":127,"amount":22860,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23046","pcs":118,"amount":21240,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23048","pcs":14,"amount":2520,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23068","pcs":1,"amount":296,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23069","pcs":4,"amount":1184,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23071","pcs":2,"amount":476,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23072","pcs":17,"amount":4046,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"23131","pcs":1,"amount":710,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23138","pcs":18,"amount":3240,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23143","pcs":40,"amount":9600,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23144","pcs":2,"amount":480,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - VADODARA","inv":"23517","pcs":1280,"amount":288000,"type":"Cancelled Invoice","reason":"goods are not ready"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23193","pcs":8,"amount":1920,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23204","pcs":49,"amount":11760,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23241","pcs":2,"amount":524,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23209","pcs":1,"amount":180,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23255","pcs":23,"amount":4140,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"23105","pcs":1,"amount":880,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOSAKOTE)","inv":"23153","pcs":1,"amount":467,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"23334","pcs":2,"amount":640,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"23163","pcs":2,"amount":900,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"23410","pcs":1,"amount":276,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23136","pcs":2,"amount":360,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23207","pcs":2,"amount":360,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23245","pcs":8,"amount":1440,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23286","pcs":3,"amount":930,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23208","pcs":8,"amount":1440,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23341","pcs":1,"amount":260,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23418","pcs":1,"amount":179,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23342","pcs":16,"amount":4160,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23248","pcs":2,"amount":360,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23367","pcs":3,"amount":930,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23445","pcs":2,"amount":430,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23444","pcs":2,"amount":430,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23441","pcs":8,"amount":1720,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23368","pcs":7,"amount":2170,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23502","pcs":2,"amount":540,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23616","pcs":3,"amount":705,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23612","pcs":63,"amount":14805,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (MUMBAI)","inv":"22062","pcs":1,"amount":713,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"23656","pcs":1,"amount":275,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23611","pcs":47,"amount":11045,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23662","pcs":40,"amount":8800,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"23698","pcs":5,"amount":1175,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"23695","pcs":11,"amount":2585,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (PUNE)","inv":"23269","pcs":800,"amount":255376,"type":"Cancelled Invoice","reason":"Incorrect Address"},{"party":"RELIANCE RETAIL LIMITED (HOOGHLI)","inv":"22350","pcs":5,"amount":78,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"24114","pcs":1,"amount":259,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23465","pcs":42,"amount":13020,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23503","pcs":8,"amount":1720,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23366","pcs":1,"amount":310,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23468","pcs":16,"amount":3984,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23526","pcs":3,"amount":780,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23660","pcs":1,"amount":220,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"23659","pcs":15,"amount":3300,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"23664","pcs":19,"amount":4180,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"30","pcs":11,"amount":2585,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"23618","pcs":252,"amount":59220,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23615","pcs":60,"amount":14100,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"21471","pcs":779,"amount":284335,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23524","pcs":1,"amount":260,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23562","pcs":8,"amount":2152,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23563","pcs":10,"amount":2690,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23270","pcs":24,"amount":7661,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"23835","pcs":5,"amount":1175,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23216","pcs":1,"amount":489,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOSAKOTE)","inv":"23271","pcs":15,"amount":4788,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. (VIJAYAWADA)","inv":"23272","pcs":6,"amount":1915,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (PUNE)","inv":"23273","pcs":93,"amount":29687,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"23275","pcs":4,"amount":1339,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"23332","pcs":1,"amount":285,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"23343","pcs":15,"amount":4788,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"23375","pcs":1,"amount":248,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOOGHLI)","inv":"23376","pcs":1,"amount":246,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"23431","pcs":2,"amount":571,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23433","pcs":1,"amount":286,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOSAKOTE)","inv":"23434","pcs":1,"amount":286,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23289","pcs":1,"amount":266,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOSAKOTE)","inv":"23317","pcs":2,"amount":571,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23522","pcs":8,"amount":2080,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (WEST BENGAL)","inv":"23578","pcs":1,"amount":251,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23595","pcs":7,"amount":2170,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23621","pcs":8,"amount":2160,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23622","pcs":8,"amount":2160,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23623","pcs":1,"amount":270,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23632","pcs":8,"amount":2480,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"23641","pcs":1,"amount":251,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23646","pcs":1,"amount":240,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23648","pcs":3,"amount":720,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23651","pcs":3,"amount":706,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"23655","pcs":3,"amount":706,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. (VIJAYAWADA)","inv":"23653","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"23673","pcs":1,"amount":248,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23675","pcs":4,"amount":990,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23690","pcs":3,"amount":720,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23691","pcs":3,"amount":720,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23692","pcs":3,"amount":720,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"23718","pcs":4,"amount":990,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23742","pcs":8,"amount":2136,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23743","pcs":8,"amount":2136,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23744","pcs":2,"amount":534,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23745","pcs":2,"amount":534,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23746","pcs":4,"amount":1068,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23784","pcs":8,"amount":2136,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23787","pcs":3,"amount":801,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23481","pcs":2,"amount":495,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23535","pcs":3,"amount":743,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOOGHLI)","inv":"23847","pcs":1,"amount":301,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"23873","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23898","pcs":9,"amount":7997,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (GHAZIABAD)","inv":"23922","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"23990","pcs":1,"amount":275,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23807","pcs":2,"amount":540,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"35","pcs":15,"amount":2700,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (PUNE)","inv":"23155","pcs":75,"amount":34994,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"23156","pcs":75,"amount":34994,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"22775","pcs":10,"amount":2690,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"23124","pcs":11,"amount":3025,"type":"Shortage","reason":"Shortage"},{"party":"SMARTPADDLE TECHNOLOGY PVT. LTD. (URBAN) BENGALURU","inv":"22746","pcs":800,"amount":149368,"type":"Cancelled Invoice","reason":"CHANGE TRANSPORTER"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23030","pcs":3,"amount":795,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"23559","pcs":8,"amount":2152,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23793","pcs":1,"amount":267,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"23935","pcs":2,"amount":552,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"23939","pcs":2,"amount":552,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"23945","pcs":2,"amount":552,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (WEST BENGAL)","inv":"23948","pcs":1,"amount":276,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24014","pcs":5,"amount":1740,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"23949","pcs":2,"amount":520,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"23950","pcs":1,"amount":276,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"23955","pcs":4,"amount":1103,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23958","pcs":16,"amount":3840,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"23967","pcs":6,"amount":1560,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"23982","pcs":1,"amount":285,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"23985","pcs":1,"amount":239,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"23986","pcs":3,"amount":717,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"23997","pcs":2,"amount":592,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"23998","pcs":3,"amount":932,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24013","pcs":4,"amount":1184,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (WEST BENGAL)","inv":"24033","pcs":1,"amount":307,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24069","pcs":2,"amount":690,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24074","pcs":2,"amount":520,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. - BADLI","inv":"24062","pcs":22,"amount":6275,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24018","pcs":55,"amount":14685,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24010","pcs":84,"amount":21840,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24008","pcs":10,"amount":2600,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23994","pcs":61,"amount":16287,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24068","pcs":60,"amount":14100,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24092","pcs":4,"amount":880,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"24066","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24094","pcs":25,"amount":5500,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24078","pcs":8,"amount":1760,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (GHAZIABAD)","inv":"24067","pcs":60,"amount":14100,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24174","pcs":2,"amount":470,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24161","pcs":4,"amount":940,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)","inv":"22336","pcs":27,"amount":8115,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"23268","pcs":23,"amount":7342,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - VADODARA","inv":"24173","pcs":96,"amount":38400,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"23956","pcs":8,"amount":1920,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24121","pcs":6,"amount":1440,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (GHAZIABAD)","inv":"24462","pcs":72,"amount":18576,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24277","pcs":60,"amount":15480,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"24163","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24177","pcs":7,"amount":1645,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24148","pcs":6,"amount":1620,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24470","pcs":148,"amount":34780,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24378","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (GHAZIABAD)","inv":"24457","pcs":60,"amount":14100,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24561","pcs":32,"amount":8256,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"24458","pcs":60,"amount":14100,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24742","pcs":1130,"amount":468950,"type":"Cancelled Invoice","reason":"This invoice copy was cancelled as per Ganesh' (MARCHANDSIER request"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24743","pcs":1234,"amount":505940,"type":"Cancelled Invoice","reason":"This invoice copy was cancelled as per Ganesh' (MARCHANDSIER request"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24156","pcs":2,"amount":460,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24159","pcs":5,"amount":1150,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24259","pcs":67,"amount":17755,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24160","pcs":5,"amount":1150,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24158","pcs":5,"amount":1150,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24257","pcs":3,"amount":795,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24260","pcs":6,"amount":1590,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24228","pcs":8,"amount":1776,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24229","pcs":4,"amount":888,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24232","pcs":3,"amount":666,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24326","pcs":16,"amount":4320,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24298","pcs":2,"amount":540,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24665","pcs":51,"amount":13158,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24296","pcs":8,"amount":2160,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24304","pcs":5,"amount":1110,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24369","pcs":3,"amount":666,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24280","pcs":192,"amount":49536,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24436","pcs":60,"amount":15600,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24769","pcs":3,"amount":825,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"24653","pcs":1,"amount":746,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24696","pcs":44,"amount":9680,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24325","pcs":192,"amount":51840,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24754","pcs":60,"amount":13200,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (KOTTAYAM)","inv":"24404","pcs":6,"amount":1650,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (KOTTAYAM)","inv":"24414","pcs":4,"amount":780,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24190","pcs":1,"amount":222,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24366","pcs":32,"amount":7104,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24367","pcs":8,"amount":1776,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24485","pcs":80,"amount":20800,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"33","pcs":10,"amount":2220,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24527","pcs":80,"amount":20800,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24881","pcs":1,"amount":350,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24661","pcs":1,"amount":222,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24618","pcs":76,"amount":19760,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24897","pcs":9,"amount":2115,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24935","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"24114","pcs":2,"amount":539,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"38","pcs":2,"amount":460,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24734","pcs":71,"amount":15762,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24786","pcs":2,"amount":444,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24607","pcs":28,"amount":6440,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24604","pcs":18,"amount":4140,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24598","pcs":26,"amount":5980,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24110","pcs":1,"amount":270,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"24115","pcs":2,"amount":579,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"24109","pcs":3,"amount":809,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24603","pcs":12,"amount":2760,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"24755","pcs":32,"amount":7616,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - VADODARA","inv":"24562","pcs":8,"amount":3400,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24057","pcs":50,"amount":11000,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24898","pcs":60,"amount":14100,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"24899","pcs":1,"amount":235,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"24681","pcs":2,"amount":1130,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"25021","pcs":1,"amount":275,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. (VIJAYAWADA)","inv":"24798","pcs":1,"amount":515,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"24799","pcs":1,"amount":515,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"24800","pcs":9,"amount":4638,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24813","pcs":2,"amount":954,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24760","pcs":55,"amount":14575,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"24450","pcs":1,"amount":237,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24538","pcs":1,"amount":260,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24542","pcs":2,"amount":444,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24601","pcs":2,"amount":460,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"24628","pcs":1,"amount":294,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24649","pcs":1,"amount":260,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24671","pcs":2,"amount":444,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (PUNE)","inv":"24686","pcs":1,"amount":495,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24702","pcs":7,"amount":1820,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24703","pcs":23,"amount":5980,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"24720","pcs":1,"amount":480,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24765","pcs":1,"amount":294,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"24768","pcs":5,"amount":1472,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24761","pcs":72,"amount":19080,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24759","pcs":4,"amount":1060,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24706","pcs":24,"amount":6360,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24705","pcs":8,"amount":2120,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24643","pcs":21,"amount":5460,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24633","pcs":16,"amount":4160,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24630","pcs":2,"amount":520,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24619","pcs":8,"amount":2080,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24605","pcs":1,"amount":230,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24596","pcs":2,"amount":460,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24590","pcs":9,"amount":2649,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24529","pcs":16,"amount":4160,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24518","pcs":8,"amount":1840,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24478","pcs":5,"amount":1110,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24476","pcs":3,"amount":666,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24451","pcs":2,"amount":474,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24733","pcs":5,"amount":1375,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24534","pcs":109,"amount":24198,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24535","pcs":160,"amount":41600,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24567","pcs":400,"amount":104000,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24724","pcs":48,"amount":10656,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24731","pcs":16,"amount":3552,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"24792","pcs":23,"amount":12210,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24796","pcs":31,"amount":15975,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. (VIJAYAWADA)","inv":"24815","pcs":2,"amount":954,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24819","pcs":16,"amount":3552,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24822","pcs":6,"amount":1332,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24839","pcs":2,"amount":444,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24851","pcs":47,"amount":10434,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24861","pcs":2,"amount":959,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24868","pcs":2,"amount":444,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24878","pcs":16,"amount":3552,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"24915","pcs":1,"amount":477,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24916","pcs":3,"amount":1430,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"24925","pcs":1,"amount":515,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"24926","pcs":7,"amount":3607,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. (VIJAYAWADA)","inv":"24929","pcs":1,"amount":515,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24927","pcs":1,"amount":515,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24960","pcs":4,"amount":888,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24970","pcs":2,"amount":444,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24986","pcs":3,"amount":666,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"25035","pcs":3,"amount":718,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"25047","pcs":2,"amount":868,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25061","pcs":8,"amount":1776,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOBLI)","inv":"25051","pcs":1,"amount":434,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24361","pcs":1,"amount":265,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24299","pcs":56,"amount":15120,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24294","pcs":3,"amount":780,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24293","pcs":8,"amount":2080,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24292","pcs":1,"amount":260,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24290","pcs":6,"amount":1560,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24289","pcs":8,"amount":2080,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LTD. (VIJAYAWADA)","inv":"24207","pcs":1,"amount":274,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24205","pcs":5,"amount":1370,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (WEST BENGAL)","inv":"24183","pcs":1,"amount":289,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"24182","pcs":1,"amount":289,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"24180","pcs":2,"amount":579,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"24137","pcs":1,"amount":291,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"24136","pcs":1,"amount":291,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOSAKOTE)","inv":"24111","pcs":1,"amount":270,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"24083","pcs":1,"amount":289,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"24440","pcs":1,"amount":275,"type":"Shortage","reason":"Shortage"},{"party":"SHOPPERS STOP LIMITED (DELHI DC)","inv":"24595","pcs":2,"amount":680,"type":"Shortage","reason":"Shortage"},{"party":"SHOPPERS STOP LTD ( BANGALORE DC)","inv":"24491","pcs":2,"amount":720,"type":"Shortage","reason":"Shortage"},{"party":"SHOPPERS STOP LIMITED (KOLKATA DC)","inv":"24256","pcs":3,"amount":1020,"type":"Shortage","reason":"Shortage"},{"party":"SHOPPERS STOP LIMITED (MUMBAI DC)","inv":"24253","pcs":4,"amount":1360,"type":"Shortage","reason":"Shortage"},{"party":"SHOPPERS STOP LIMITED (KOLKATA DC)","inv":"24252","pcs":1,"amount":340,"type":"Shortage","reason":"Shortage"},{"party":"SHOPPERS STOP LIMITED (DELHI DC)","inv":"24251","pcs":7,"amount":2380,"type":"Shortage","reason":"Shortage"},{"party":"SHOPPERS STOP LIMITED (MUMBAI DC)","inv":"24233","pcs":1,"amount":340,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25010","pcs":60,"amount":14100,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25011","pcs":189,"amount":44415,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25006","pcs":61,"amount":14335,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"25014","pcs":300,"amount":70500,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"24714","pcs":49,"amount":12642,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25063","pcs":5,"amount":1175,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24052","pcs":4,"amount":1108,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24052","pcs":4,"amount":1108,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"24052","pcs":3,"amount":831,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LIMITED-BHIWANDI","inv":"25177","pcs":1024,"amount":212992,"type":"Cancelled Invoice","reason":"goods are not ready"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"25178","pcs":1024,"amount":212992,"type":"Cancelled Invoice","reason":"goods are not ready"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"24715","pcs":35,"amount":16784,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24526","pcs":374,"amount":83028,"type":"Garments Return","reason":"Reverse pickup"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24591","pcs":182,"amount":40404,"type":"Garments Return","reason":"Reverse pickup"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24985","pcs":1680,"amount":372960,"type":"Cancelled Invoice","reason":"change QTY"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"24729","pcs":8,"amount":1776,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24884","pcs":8,"amount":1776,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"25090","pcs":4,"amount":888,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"25108","pcs":3,"amount":666,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"25282","pcs":1,"amount":265,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"25293","pcs":480,"amount":180000,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25135","pcs":9,"amount":2115,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"25239","pcs":1,"amount":220,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"22270","pcs":3,"amount":624,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25302","pcs":27,"amount":5940,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"25308","pcs":1,"amount":220,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"24406","pcs":60,"amount":15480,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"25392","pcs":2,"amount":360,"type":"Cancelled Invoice","reason":"shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"25393","pcs":2,"amount":900,"type":"Cancelled Invoice","reason":"shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"25394","pcs":1,"amount":276,"type":"Cancelled Invoice","reason":"shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25395","pcs":3,"amount":930,"type":"Cancelled Invoice","reason":"shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"25396","pcs":2,"amount":640,"type":"Cancelled Invoice","reason":"shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"25397","pcs":2,"amount":360,"type":"Cancelled Invoice","reason":"shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"25398","pcs":8,"amount":1440,"type":"Cancelled Invoice","reason":"shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24725","pcs":42,"amount":9324,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24832","pcs":22,"amount":4884,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24956","pcs":1,"amount":222,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"24880","pcs":1,"amount":222,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25106","pcs":8,"amount":1776,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24722","pcs":8,"amount":1776,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"25305","pcs":2528,"amount":948000,"type":"Cancelled Invoice","reason":"goods are not ready"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"25075","pcs":1,"amount":255,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"25301","pcs":21,"amount":4620,"type":"Shortage","reason":"Shortage"},{"party":"SHOPPERS STOP LIMITED","inv":"24490","pcs":2,"amount":720,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"25303","pcs":480,"amount":106560,"type":"Cancelled Invoice","reason":"goods are not ready"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (HOWARAH)","inv":"25004","pcs":60,"amount":14100,"type":"Garments Return","reason":"One CTN (60 pcs) was missing, so we generated a new invoice. Since the missing CTN has now been found, the invoice has been cancelled"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"25094","pcs":1,"amount":450,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"25100","pcs":1,"amount":434,"type":"Shortage","reason":"Shortage"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"25305","pcs":2528,"amount":948000,"type":"Cancelled Invoice","reason":"goods are not ready"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"25303","pcs":480,"amount":106560,"type":"Cancelled Invoice","reason":"goods are not ready"},{"party":"AVENUE SUPERMARTS LTD - ISNAPUR","inv":"25409","pcs":192,"amount":72000,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (TELANGANA)","inv":"25446","pcs":1,"amount":265,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25371","pcs":28,"amount":6160,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25366","pcs":60,"amount":13200,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"25201","pcs":1,"amount":281,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (GUWAHATI)","inv":"25160","pcs":1,"amount":297,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (WEST BENGAL)","inv":"25197","pcs":3,"amount":859,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (UNNAO)","inv":"25194","pcs":2,"amount":573,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"25173","pcs":1,"amount":281,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)","inv":"25361","pcs":61,"amount":13420,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HYDERABAD)-","inv":"25206","pcs":3,"amount":844,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"25224","pcs":2,"amount":542,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (GHAZIABAD)","inv":"21329","pcs":54,"amount":12690,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (GHAZIABAD)","inv":"21329","pcs":91,"amount":22841,"type":"Shortage","reason":"Shortage"},{"party":"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)","inv":"21324","pcs":17,"amount":4437,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HOSAKOTE)","inv":"25252","pcs":1,"amount":271,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (DINDIGUL)","inv":"25251","pcs":1,"amount":271,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (CHENNAI)","inv":"25250","pcs":3,"amount":812,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (JHAJJAR)","inv":"25344","pcs":8,"amount":1600,"type":"Shortage","reason":"Shortage"},{"party":"R-RELIANCE RETAIL LTD (CHENNAI)","inv":"R253030477800497","pcs":30,"amount":13409,"type":"Cancelled Invoice","reason":"Online Documents Cancel"},{"party":"R-RELIANCE RETAIL LTD (LUCKNOW)","inv":"R253030477800581","pcs":10,"amount":4625,"type":"Cancelled Invoice","reason":"Online Documents Cancel"},{"party":"R-RELIANCE RETAIL LTD (KARNATAKA)","inv":"R253030477800772","pcs":21,"amount":9386,"type":"Cancelled Invoice","reason":"Online Documents Cancel"},{"party":"R-RELIANCE RETAIL LTD (GUJRAT)","inv":"R253030477802029","pcs":10,"amount":4276,"type":"Cancelled Invoice","reason":"Online Documents Cancel"},{"party":"NEXON OMNIVERSE LIMITED (PERINTHALMANNA)","inv":"24389","pcs":26,"amount":7150,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (PERINTHALMANNA)","inv":"24389","pcs":26,"amount":7150,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (PERINTHALMANNA)","inv":"24415","pcs":26,"amount":5070,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (PERINTHALMANNA)","inv":"24415","pcs":26,"amount":5070,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (PERINTHALMANNA)","inv":"24424","pcs":78,"amount":21450,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (PERINTHALMANNA)","inv":"24424","pcs":52,"amount":14300,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED (HARIPAL)","inv":"24756","pcs":40,"amount":10600,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"25527","pcs":2,"amount":2452,"type":"Shortage","reason":"Shortage"},{"party":"NEXON OMNIVERSE LIMITED (THANE)","inv":"25529","pcs":2,"amount":1866,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25428","pcs":17,"amount":3400,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25422","pcs":1,"amount":200,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25460","pcs":2,"amount":400,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25437","pcs":1,"amount":200,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25348","pcs":8,"amount":1600,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25342","pcs":8,"amount":1600,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25345","pcs":16,"amount":3200,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25443","pcs":2,"amount":400,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25431","pcs":27,"amount":5400,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25434","pcs":30,"amount":6000,"type":"Shortage","reason":"Shortage"},{"party":"RELIANCE RETAIL LIMITED - KACHARAKANAHALLI","inv":"25425","pcs":37,"amount":7400,"type":"Shortage","reason":"Shortage"}],"stitch_vendors":{"Shreeji Apparel":44504906.04,"PRABHA CREATION.":41519615.5,"BHARAT GARMENTS COMPANY":26189872.4,"Abt Enterprises - Unit I":23966968,"Adduco Fashion Llp-Stitcher":6478717,"Salasar Creations - Unit I":6306667,"Swar-Savi Enterprises":4502605.5,"NIKHIL ENTERPRISES":2812548.52,"Bhramdev Garments":2586012,"KARISHMA GARMENTS":2474772.5,"Indian Stitching Company.":2239251.02,"Ganesh Garments":1910190,"Abt Enterpries - Unit I I":1566016,"Navya Enterprises":1484323.6,"Gajanan Kumar Koli (Stitching)":1396701.1,"Noble 3":1278798,"Meeha Fashion":1237472,"United Traders":1080957.5,"Prime Calibre Private Limited":1065132,"A Square Clothing.":914872,"Heerva Trends Llp":852948.5,"Giriwar Fashion Industries - (Stitcher)":640335,"Seema Creations":608489,"Vakil Mahadev Patil (Stitching)":519264,"Shreesastha Creations (Stitching)":478474.5,"GURU GARMENT":458222,"Perfect Clothing - Sticher":445505,"Oam Garments":399048,"Dilshad Garment Co-Op Industries Ltd":392426,"Padmanabh Creation Private Limited":345206,"A A Raje":303975,"Jha Fashion":239965,"Attire Fashion House":216353,"VIVEK BHAGWANDAS BHANDARI (STTICHING)":103325,"Aryan Creation (Stitching)":60000,"Taj Garments":25705},"cogs_cats":["Grey Fabric","Finish Fabric","Garment & Emb Purchase","Accessories","Stitching & Job Work","Embroidery Charges","Process Charges","Packing & Cutting","Transportation & Delivery","Other Direct","Stock Adjustments"],"pl_cats":["Personnel","Finance","Professional Fees","Admin & Office","Rent & Property","Insurance","Other Income (-)","Other Indirect"],"cogs_cat_detail":{"Grey Fabric":{"Grey Purchases":191647765,"Grey Purchase Return":-2147930,"Cash Discount - Grey Pur":-5147},"Finish Fabric":{"Finish Purchase":118059656,"Finish Purchase Return":-1272229,"Cash Discount - Finish Pur":-604106},"Garment & Emb Purchase":{"Garment Purchase":5203025,"Embroidery Grey Purchase":1374489},"Accessories":{"Accessories Purchase":36978922,"Cash Discount - Accessories Pur":-216270,"Cash Discount - Emb Charges":-8579},"Stitching & Job Work":{"Stitching Charges":181674464,"Job Work Charges":12390},"Embroidery Charges":{"Embroidery Charges":43193408},"Process Charges":{"Process Charges":78326830,"Cash Discount - Process":-28601},"Packing & Cutting":{"Packing Material":15331076,"Cash Discount - Packing":-9619,"Cutting & Packing Exp":3818394},"Transportation & Delivery":{"Transportation Charges":13224859,"Sales Transport Charges":114450,"Post Delivery Charges":1231334,"Mukadam & Hamali":440331,"Mending Charges":13090,"Freight & Forwarding":2520},"Other Direct":{"Refinishing & Repressing":400662,"Lab Testing":807021,"Sampling Exp.":334549,"Design Exp.":121470,"Freight & Forwarding":2520},"Stock Adjustments":{"Opening Stock":136941541,"Stock Inward":3788286,"Stock Outward":-16999212,"Closing Stock (Tr)":-179689968,"Closing Stock (Acc)":-2382263,"Closing Stock (Packing)":-708602}},"pl_cat_detail":{"Personnel":{"Salary & Wages":16592588,"Director Remuneration":19800000,"Manpower Cost":2989196,"Staff Welfare":750855,"Gratuity":944276,"PF (Employer)":588687,"Overtime Allowance":400995,"Performance Linked Incentive":124110,"Ex-Gratia Payment":175000,"ESIC (Employer)":21886,"PF Admin Charges":23548},"Finance":{"Bank Interest (CC)":8844542,"Bill Discounting (HSBC)":3455980,"Interest on Unsecured Loan":2873112,"MSME Interest":1943375,"Interest to Creditors":248468,"Processing & Franking":307101,"Bank Charges":77550,"GST Expense":26692,"GST Unclaimed ITC":22500,"TOD Loan Interest":68481},"Professional Fees":{"Professional Fees A/C":4336815,"Remuneration to Auditors":260000,"Stamp Duty & Registration":579800,"Trade Mark Exp.":5800,"ROC Challan":4400,"Subscription Fees":24455,"Legal Fees":24000},"Admin & Office":{"Postage & Courier":1063670,"Late Delivery Charges":623674,"House Keeping":328714,"Conveyance":305015,"Office Expense":402088,"Brokerage & Commission":332974,"Motor Vehicle Exp":531659,"Printing & Stationery":183048,"Repair & Maintenance":567297,"Computer Exp":110271,"Advertisement":51346,"Business Promotion":34651,"Telephone":64292,"Internet":25474,"Motor Bike Exp":21436,"Round Off":62,"Write-off (net)":226549,"Discrepancy Exp - Sales":9736,"Courier Credits":-24820},"Rent & Property":{"Rent (Godown)":3533272,"Office Rent":1432500,"Electricity":172609,"Property Tax":111716,"Society Maintenance":95753},"Insurance":{"Insurance (Employee)":662599,"Insurance (Stock)":322784,"Insurance (Office)":13234,"Insurance (Motor Car)":27570},"Other Income (-)":{"FD Interest (Yes Bank)":-2284439,"FD Interest (Axis)":-91666,"Interest from Parties":-24000,"Miscellaneous Income":-4920},"Other Indirect":{"Travelling Expenses":779716}},"cogs_vendor_detail":{"Accessories Purchase":{"VISHAL RAMSEVAK GUPTA":251365,"VIBHUTI PACKAGING":3861586,"VARDHMAN TRADERS":1805188,"Vardhaman Industries":1312416,"Unclaimed Sgst Input ( Fy-2023-2024)":5803,"Unclaimed Igst Input ( Fy-2023-2024)":4398,"Unclaimed Cgst Input ( Fy-2023-2024)":5803,"Threads (India) Private Ltd - Mh":182525,"Threads (India) Private Limited - Kar":28875,"TAG ID SOLUTIONS PVT. LTD.":1496205,"SUN ENTERPRISES":-286,"Slt Industries Pvt. Ltd.":17136,"Sis International":1606550,"Siddhi Trading Co.":2750,"SIDDHI CREATION":380289,"SHREYA PRINT ARTS":144329,"Shreeji Apparel":-10819,"SHREE VALLABH ENTERPRISES":92066,"Shree Krishna Enterprises":2963,"SATYASAGAR ENTERPRISES":1226050,"Saravana Graphicss":2992,"Salasar Creations - Unit I":14955,"RUCHI LACE":898188,"Rajeshwar Trading Co.":2062046,"Paras Creation":614693,"NIMBUS LABELS PVT. LTD.":1009534,"Nav Labels Private Limited":-29085,"NATIONAL PRINTING PRESS":328573,"National Enterprises":-692,"Muskan Enterprises":-1302,"Leo Lables":96200,"KHUSHI PRINT HOUSE":26510,"J. K. Enterprises (Accessories) Tirupur.":296107,"INFOTEK SOFTWARE AND SYSTEMS PVT. LTD.":4198500,"IDT FASHION TRIMMINGS PVT. LTD.":404484,"Identity Labels Private Limited":15330,"Identity Labels":-292,"H.S.Accessories":35150,"GLOBAL SALES":3247724,"Ghanshyam Dyeing (Acc)":926839,"FORTUNE LABELS":2073323,"Delta Manufacturing Limited":285418,"Benchmark Packaging Pvt. Ltd.":44000,"Avirat Packaging":47600,"AUSTIN PACKAGING":74994,"AMS NARULA LABLES PVT. LTD.":91944,"ADDUCO INDUSTRIES":4397892,"Abt Enterprises - Unit I":22400,"ABHISHEK ENTERPRISES":16500,"AARYAN ASSOCIATES":14800,"Aakar Creatives":4090,"A. K. ZS ENTERPRISES":3344315},"Cash Discount - Accessories Pur":{"VIBHUTI PACKAGING":-101541,"Vardhaman Industries":-9666,"TAG ID SOLUTIONS PVT. LTD.":-8968,"SIDDHI CREATION":-1620,"SHREYA PRINT ARTS":-224,"SHREE VALLABH ENTERPRISES":-99,"SHREE KRISHNA PACKAGING":-1020,"SATYASAGAR ENTERPRISES":-3221,"RUCHI LACE":-1230,"Rajeshwar Trading Co.":-6597,"NIMBUS LABELS PVT. LTD.":-5113,"NATIONAL PRINTING PRESS":-12,"Muskan Enterprises":-2403,"Leo Lables":-680,"KHUSHI PRINT HOUSE":-296,"J. K. Enterprises (Accessories) Tirupur.":-5703,"H K BUTTONS PVT. LTD.":-377,"GLOBAL SALES":-14395,"Ghanshyam Dyeing (Acc)":-280,"FORTUNE LABELS":-5677,"Avirat Packaging":-54,"AMS NARULA LABLES PVT. LTD.":-202,"ADDUCO INDUSTRIES":-32980,"A. K. ZS ENTERPRISES":-13912},"Cash Discount - Emb Chagres":{"SINGHANIA ART":-1425,"GANGA EXPORTS":-7154},"Cash Discount - Finish Pur":{"Shree Balaji Impex (Finish)":-343,"SAYAR SILK MILLS":-1727,"RIDDHI SIDDHI ENTERPRISES":-67130,"Madangopal Designer":-12878,"KAUSHAL CREATION":-420,"Darshana Textile":-38533,"Ajanta Silk (Finish)":-483075},"Cash Discount - Grey Pur":{"VISHAKA EXPORTS":-3952,"Lucky Yarn Tex India Private Limited":-1195},"Cash Discount - Packing Material":{"Manan Enterprise (Vapi)":-528,"Anandi Flex Industries":-986,"Adduco Polypack":-873,"AARYAN ASSOCIATES":-7232},"Cash Discount - Process Chages":{"Vividhaan Text Processors Pvt. Ltd.":-4232,"Shubh Synthetics":-1962,"Rama Textile Processors":-10473,"RADHE SHYAM PRINT":-831,"Bhairav Exports Industry Private Limited":-5090,"Ajanta Silk (Process)":-6013},"Closing Stock ( Accessories Tr)":{"Closing Stock ( Accessories Bs)":-2382263},"Closing Stock ( Packing Tr)":{"Closing Stock ( Packing Bs)":-708602},"Closing Stock (Tr)":{"Closing Stock (bs)":-179689968},"Cutting & Packing Expences":{"Yes Bank Ltd. (Cc A/C)":121207,"Unclaimed Igst Input ( Fy-2023-2024)":11061,"Ujwala R. Lahane":11468,"Sudhir Tukaram Pashilkar":997101,"OM PACKING WORKS":2601800,"BINDU VIJAYKUMAR":75757},"Design Exp.":{"Unclaimed Igst Input ( Fy-2023-2024)":720,"MANGAL TEXTILES MILLS (INDIA) P.LTD.":120750},"Embroidery Charges":{"Unicorn Embroideries U-2":200218,"Unclaimed Sgst Input ( Fy-2023-2024)":26379,"Unclaimed Cgst Input ( Fy-2023-2024)":26379,"THREADLINE":150989,"SVG FASHIONS PRIVATE LIMITED":1888254,"STAR EMBROIDERIES":297322,"SINGHANIA ART":4291358,"SHRIRAM FASHION":469344,"Shree Tirupati Embrotex Pvt. Ltd. (Job)":719349,"SHREE SIDDHIVINAYAK ART":2338862,"SHREE SANT KRUPA TEXTILE (EMB)":-1436,"SHREE SANT KRUPA GARMENTS":312397,"SEVEN STAR FASHION":120752,"Rina Art":6582974,"Raj Fashion":1141646,"Radhey Krishna":11212682,"Radhapati Creations":2646998,"Pioneer Embroideries Ltd. (Job).":632557,"Mangal Cotton Mills Pvt.Ltd.":265097,"LAXMI CREATION":-4915,"KRISLON CREATION PVT LTD":285709,"Krishna Creation (Job)":-1458,"HIRA SYNTEX PVT. LTD.":594549,"GANGA EXPORTS":-2210,"EMPILON FABRICS PVT LTD":1033853,"Devansh Creation":1365130,"Balaji Exports":805929,"ARSH EMBROIDERY":5794699},"Embroidery Grey Purchase":{"Pioneer Embroideries Limited - (Dhule)":1374489},"Finish Purchase":{"Vijay Enterprise (Surat)":-217,"United Fashion Industries":1056601,"Unclaimed Sgst Input ( Fy-2023-2024)":931,"Unclaimed Igst Input ( Fy-2023-2024)":5818,"Unclaimed Cgst Input ( Fy-2023-2024)":931,"U. G. Fashions":56700,"Svg Fashions Pvt. Ltd. (Finish)":302375,"Sri Lalithambiga Industries":1419,"SRI GAYATHRI TEXTILES":1060391,"Shree Balaji Impex (Finish)":11424,"Shiv Tex":33922,"SAYAR SILK MILLS":59769,"RIDDHI SIDDHI ENTERPRISES":9090108,"Rajputana Impex":162415,"Radhika Fashion (Pur).":755874,"Prakash International":4389366,"Madangopal Designer":535859,"Kabir Texofab":6681988,"Jagdamba Textiles Pvt. Ltd.":199910,"Igst Blocked Credit":57437,"Ginza Industries Limited":4265144,"Durga Textiles (Pur)":81161,"Disha Enterprise":237780,"Darshana Textile":1340453,"Banswara Syntex Limited":1794761,"B K Textiles":6149936,"Arihant Enterprise - Finish":1947,"Ajanta Silk (Finish)":79725451},"Finish Purchase Return":{"RIDDHI SIDDHI ENTERPRISES":-13006,"Kabir Texofab":-9900,"Jagdamba Textiles Pvt. Ltd.":-169690,"Durga Textiles (Pur)":-81161,"B K Textiles":-585253,"Ajanta Silk (Finish)":-413219},"Freight& Forwarding A\c":{"Sri Lalithambiga Industries":150,"SATYASAGAR ENTERPRISES":200,"NATIONAL PRINTING PRESS":2000,"IDT FASHION TRIMMINGS PVT. LTD.":70,"AMS NARULA LABLES PVT. LTD.":100},"Garment Purchase":{"Veetrag Fashion":16000,"Unclaimed Sgst Input ( Fy-2023-2024)":612,"Unclaimed Cgst Input ( Fy-2023-2024)":612,"Iris Fashion":-3408,"House Of Sp Llp":5156078,"Giriwar Fashion Industries":33130},"Grey Purchase Return":{"Shree Pashupatinath Textile Mills Pvt. Ltd.":-8611,"KANIKA FASHION FABRICS":-694693,"ASHOK DINKAR GHATTE":-1444626},"Grey Purchases":{"Yusuf Textiles":147802,"VSM WEAVESS INDIA PVT. LTD.":2500,"VISHAKA EXPORTS":757388,"Unclaimed Sgst Input ( Fy-2023-2024)":4143,"Unclaimed Igst Input ( Fy-2023-2024)":83,"Unclaimed Cgst Input ( Fy-2023-2024)":4143,"TAJ COTTON FABRICS PVT LTD.":865397,"T. P. TEXTILES PVT. LTD.":13487779,"SHREE SAKTHIVINAYAGAR WEAVES PVT LTD":45863604,"Shree Pashupatinath Textile Mills Pvt. Ltd.":2261219,"Shree Aditya Creations":1350825,"SHLOK INDUSTRIES":2749428,"Shakera Textiles":10980875,"Saurabh Enterprises":12894293,"Salasar Synthetic Mills":2573620,"S G Cotex":403856,"Rajul Textiles":6373958,"Mv Shah Textile Llp":1281345,"MUKESHKUMAR AND CO":8153367,"MANI FABRS":7070914,"Malchand And Co Fabric Pvt. Ltd.":4211534,"Maheshwary Cotton":385544,"Kewal Textiles":4047603,"KANIKA FASHION FABRICS":30890444,"KAMAL TEXTILES":722158,"Jay Bhavani Textiles":478048,"Gmp Weaving Mills Pvt. Ltd":1484976,"FESTIVE FASHION PVT. LTD.":4845901,"Dilip Dinkar Ghatte":12697905,"ASHOK DINKAR GHATTE":5941654,"Ajantha Silk Mills Pvt. Ltd.":7463523,"A. S. TEXTILE (GREY)":1073916,"A B Textiles":178020},"Job Work Charges":{"GAUTAM ART":12390},"Lab Testing And Technical Expenses A/C":{"Unclaimed Sgst Input ( Fy-2023-2024)":4297,"Unclaimed Cgst Input ( Fy-2023-2024)":4297,"TESTTEX INDIA LABORATORIES PVT.LTD":126285,"Reliance Retail Limited -Exp":247671,"RELIANCE RETAIL LIMITED (MUM)":153879,"Reliance Retail Limited - Exp (Guj)":21730,"INTERTEK INDIA PVT. LTD. (MUMBAI)":120112,"Eurofins Product Testing India Pvt. Ltd.":128750},"Mending Charges":{"SHREE M. G. MENDING JOB WORK":28820,"PRABHA CREATION.":16680,"Pioneer Embroideries Ltd. (Job).":-15730,"Ajanta Silk (Finish)":-16680},"Mukadam & Hamali Charges":{"Yes Bank Ltd. (Cc A/C)":412201,"Rupesh Sanjay Lad":1560,"Manoj Singh - Reimbursement":50,"Cash In Hand":26520},"Opening Stock":{"Closing Stock (bs)":136941541},"Packing Material A/c":{"Yes Bank Ltd. (Cc A/C)":1396,"VINAYAK PACKAGING INDUSTRIES":220181,"VIBHUTI PACKAGING":-7343,"VEEHA CREATION":8670,"Unclaimed Sgst Input ( Fy-2023-2024)":6957,"Unclaimed Igst Input ( Fy-2023-2024)":3622,"Unclaimed Cgst Input ( Fy-2023-2024)":6957,"Square Packwell":354731,"Silverbill Packaging Llp":2586234,"Siddhivinayak Packaging":198000,"Shri Rajtilak Packaging Industries":84339,"Shri Radha Industries":1750857,"Shree Sai Stationery":205806,"SHREE KRISHNA PACKAGING":643205,"SATYASAGAR ENTERPRISES":200,"Sarvin Printers Pvt. Ltd.":42777,"Rajtilak Plastic Industries":16559,"Nexon Omniverse Limited (Telangana)":1350,"Navpad Packaging":435600,"Maruti Packaging":13064,"Manan Enterprise (Vapi)":551496,"Kheteshwar Enterprise":638076,"GURUDEV PLASTIC":210394,"DHRUNIK RIBBONS":43760,"DHARMI PAPER CONVERTORS":49200,"COSMOS TWISTERS PVT. LTD.":219393,"Cash In Hand":1300,"Bombay Hanger Mart":7440,"Bharati Packaging":15570,"ASHOK PARMAR":22980,"ARIHANT PACKAGING":137394,"Anandi Flex Industries":1192236,"Adduco Polypack":1197884,"Adduco Fashion Llp-Stitcher":1456,"ADDUCO FASHION LLP":31276,"AARYAN ASSOCIATES":4434866,"3S INDUSTRIES":3194},"Post Delivery Charges (Without Gst)":{"Nexon Omniverse Limited (Telangana)":1035,"Lifestyle International Pvt. Ltd. (Howarah)":111551,"Lifestyle International Pvt. Ltd. (Ghaziabad)":297021,"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)":275595,"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)":546131},"Process Charges":{"Vividhaan Text Processors Pvt. Ltd.":583914,"Unclaimed Sgst Input ( Fy-2023-2024)":432,"Unclaimed Igst Input ( Fy-2023-2024)":19661,"Unclaimed Cgst Input ( Fy-2023-2024)":432,"Texworld Fashions Private Limited":72028,"SHREE KARNI JI SILK MILLS":329629,"Rudra Creation":2766700,"Rina Art":-8500,"Rama Textile Processors":432911,"RADHE SHYAM PRINT":768100,"PIONEER DYEING PVT. LTD.":9702009,"NILAMBER DYEING &  BLEACHING MILLS P. LTD.":1796232,"MANJU FASHION (DYER)":265851,"MANGAL TEXTILES MILLS (INDIA) P.LTD.":10244068,"Lucky Process":90013,"Kailash Processors":6471933,"Jay Industrial Chemical Pvt Ltd":34322487,"Diaan Tex Fab Private Limited":585490,"CHIRIPAL INDUSTRIES LTD..":5736042,"Bhairav Exports Industry Private Limited":345909,"BELLFLOWER TRADING COMPANY PVT. LTD.":3596119,"ATN PRINTS":4932,"Ajanta Silk (Process)":200439},"Refinishing & Repressing Charges (Garment)":{"GURUDEV WASH CARE":400662},"Sales - Transportation Charges":{"Nexon Omniverse Limited (Thane)":-211,"Nexon Omniverse Limited (Telangana)":114661},"Sampling Exp.":{"Tirumala Designers Pvt.Ltd.":10903,"Shailesh Fab":1125,"Saroj Creative Fabrics Llp":525,"N M Fashion Designs Pvt Ltd.":150482,"Cash In Hand":126491,"Ajantha Silk Mills Pvt. Ltd.":1000},"Stitching Charges":{"VIVEK BHAGWANDAS BHANDARI (STTICHING)":103325,"Vakil Mahadev Patil (Stitching)":519264,"United Traders":1080958,"Unclaimed Sgst Input ( Fy-2023-2024)":887,"Unclaimed Igst Input ( Fy-2023-2024)":67051,"Unclaimed Cgst Input ( Fy-2023-2024)":887,"Taj Garments":25705,"Swar-Savi Enterprises":4502606,"Shreesastha Creations (Stitching)":478474,"Shreeji Apparel":44504906,"Seema Creations":608489,"Salasar Creations - Unit I":6306667,"Prime Calibre Private Limited":1065132,"PRABHA CREATION.":41519616,"Perfect Clothing - Sticher":445505,"Padmanabh Creation Private Limited":345206,"Oam Garments":399048,"Noble 3":1278798,"NIKHIL ENTERPRISES":2812549,"Navya Enterprises":1484324,"Meeha Fashion":1237472,"KARISHMA GARMENTS":2474772,"Jha Fashion":239965,"Indian Stitching Company.":2239251,"Heerva Trends Llp":852948,"GURU GARMENT":458222,"Giriwar Fashion Industries - (Stitcher)":640335,"Ganesh Garments":1910190,"Gajanan Kumar Koli (Stitching)":1396701,"Dilshad Garment Co-Op Industries Ltd":392426,"Bhramdev Garments":2586012,"BHARAT GARMENTS COMPANY":26189872,"Attire Fashion House":216353,"Aryan Creation (Stitching)":60000,"Adduco Fashion Llp-Stitcher":6478717,"Abt Enterprises - Unit I":23966968,"Abt Enterpries - Unit I I":1566016,"A Square Clothing.":914872,"A A Raje":303975},"Stock Inward":{"4 - United Textile Mills Pvt Ltd (Myntra Usl)":1441021,"3 United Textile Mills Pvt. Ltd. Unit Iii (Usl)":2347265},"Stock Outward":{"4 - United Textile Mills Pvt Ltd (Myntra Usl)":-14900030,"3 United Textile Mills Pvt. Ltd. Unit Iii (Usl)":-2099182},"Transportation Charges":{"Vrl Logistics Ltd":14653,"V.R.Transport Co.":5150,"TAG ID SOLUTIONS PVT. LTD.":14228,"Surat Road Carriers (Surat)":153430,"Surat Road Carrier (Bhiwandi)":14280,"SURAT AHMEDABAD TRANSPORT PVT. LTD.":2000,"SUPREME TRANSWAYS ORGANISATION (TIRUPUR)":34655,"SUPREME TRANSPORT SOLUTIONS PVT. LTD.":202323,"STS TRANSLOG SOLUTION LLP":1481746,"SOUTH GUJARAT TRANSPORT PVT LTD.":41420,"South Gujarat Transport Pvt Ltd - Guj":5360,"Skyway Cargo & Logistics Pvt. Ltd.":1436630,"Shyamsons Engineering System":4500,"SHRI DATTA ROADLINES (FULL LOAD)":132570,"SHRI DATTA CARRING CORPORATION":63520,"Shree Modeshwari Logistics Pvt Ltd":434700,"SHREE HANS ROADWAYS":3980,"Shoppers Stop Ltd ( Bangalore Dc)":415,"Shoppers Stop Limited (Kolkata Dc)":557,"Shoppers Stop Limited (Delhi Dc)":1320,"Shiv Transport And Parcel Service":190975,"Sanjay Transport":204905,"Sai Logistics":5879692,"Rupesh Sanjay Lad":28440,"ROYAL TRANSPORT":37000,"Royal Logistic - Ichalkarnji":3650,"Ramkrupa Parcel Service":115500,"Ramdev Transport Service":357050,"Rajneesh Anand P Chaudhree":370300,"Rajesh Cargo":309140,"PANKAJ TRANSPORT SERVICE":7470,"Pankaj Mohan Logistics Pvt. Ltd.":900,"Nirmal Warehouse And Transportation Llp":780,"Nexon Omniverse Limited (Telangana)":404,"New Nirmal Roadlines":2700,"Manoj Singh - Reimbursement":2200,"MAHALAXMI CARGO SERVICES":184960,"Kheteshwar Enterprise":-27727,"J. K. TRANSPORT":4470,"GURUDEV PLASTIC":3250,"GUJRAT TRANSPORT SERVICE":1800,"Gujarat Ncr Transport Corporation":5315,"GLOBAL SALES":300,"Flywing Cargo Pvt. Ltd. (Transport)":3400,"Chamunda Tempo Service.":2400,"Cash In Hand":96518,"BALOTRA CARRYING COMPANY PRIVATE LIMITED":2750,"ANAND CARGO SERVICE":31270,"Ambe Transport":52550,"Aastha Logistics (Trp)":19428,"Aastha Logistics":476780,"AARYAN ASSOCIATES":4000}},"pl_vendor_detail":{"Advertisement And Sales Promotions Expesnes":{"Siddharth Communications":48096,"Elements 9":3250},"Bank Charges":{"Yes Bank Ltd. (Cc A/C)":8,"Yes Bank Cc - 9351":750,"Interest Accrued On Deposit - Yes":288,"Axis Bank Ltd - Exp":74229,"Axis Bank Ltd - C C":2275},"Bank Interest (  C C  A/C)":{"Yes Bank Ltd. (Cc A/C)":1680049,"Yes Bank Cc - 9351":1094066,"Hsbc Bank":438,"Bank Interest Payble":427224,"Axis Bank Ltd - C C":5642765},"Bank Interest (Tod Loan Cc)":{"Axis Bank - Tod Loan":58657,"Axis Bank - Tod Cc A/C":9824},"Bill Discounting Charges - Hsbc":{"Hsbc Hundi - A/C Cc":3455980},"Brokerage & Commission A\c":{"Unclaimed Igst Input ( Fy-2023-2024)":18144,"RAMKISHOR B. JHANI.":7877,"RAJESH S. ASRANI":14466,"Manoj Mahabir Prasad Jain":211000,"ANANT THAKKAR":81487},"Business  & Sales Promotion":{"Ashish  Bhandari - Reimbursement":34651},"Computer Exp.":{"Yes Bank Ltd. (Cc A/C)":4530,"Tanvi Electro System":8750,"SAI COMPUTER":8997},"Computer Software Expenses":{"STUDIO NEXT TECHNOLOGY PVT. LTD.":10000,"SAB INFOTECH SOLUTIONS PVT LTD":73500,"Prepaid Exp.":-13731,"Grosure Ecomm Solution Llp":18225},"Conveyance A/c":{"Yes Bank Ltd. (Cc A/C)":101557,"Manoj Singh - Reimbursement":400,"Kirit Darji":2500,"Cash In Hand":200558},"Courier Charges":{"VISHAL RAMSEVAK GUPTA":-300,"SIDDHI CREATION":-450,"SHRIRAM FASHION":-3450,"SATYASAGAR ENTERPRISES":-4500,"RUCHI LACE":-4200,"NATIONAL PRINTING PRESS":-300,"IDT FASHION TRIMMINGS PVT. LTD.":-400,"Bhavna D. Rughani":300,"ARSH EMBROIDERY":-11520},"Director Remuneration - 35%":{"VIBHA BHANDARI ( SALARY)":2800000,"SACHIN D.  BHANDARI ( SALARY )":5600000,"NEHA  S. BHANDARI ( SALARY )":2800000,"Chandan Bhandari - Salary":3000000,"ASHISH  D. BHANDARI ( SALARY )":5600000},"Discrepancy Expenses - Sales":{"RELIANCE RETAIL LIMITED (MUM)":5138,"Nexon Omniverse Limited (Thane)":4598},"Dividend Received From Listed Company":{"Yes Bank Ltd. (Cc A/C)":-50},"Electricity Exp.a/c":{"Yes Bank Ltd. (Cc A/C)":9550,"Electricity Payable":12710,"Adani Electricity Mumbai Ltd. A/C No.153460283":1740,"Adani Electricity Mumbai Ltd.  A/C No. 102701253":148609},"Employers Cont To Esic Exp":{"Ho United Textiles Mills Pvt. Ltd.":21886},"Employers Cont To P.F. (Exp)":{"Ho United Textiles Mills Pvt. Ltd.":588687},"Ex-Gratia Payment":{"Kushal G Bhandari - Salary":175000},"Gratuity - Staff":{"Yes Bank Ltd. (Cc A/C)":944276},"Gst Expense-Interest":{"Sgst Payable/ Receivable - Gujarat":69,"Igst Payable / Receivable - Gujarat":3004,"Cgst Payable/ Receivable - Gujarat":69},"Gst Expense-Tax":{"Sgst Payable/ Receivable - Gujarat":525,"Cgst Payable/ Receivable - Gujarat":525},"Gst Expenses - Uncliam Itc Exp Out":{"Unclaimed Sgst Input ( Fy-2023-2024)":11250,"Unclaimed Cgst Input ( Fy-2023-2024)":11250},"House Keeping Charges - Office":{"SIDDHIVINAYAK FACILITY SERVICES LLP":328714},"Income Tax Refund":{"Ho United Textiles Mills Pvt. Ltd.":75720,"Axis Bank Ltd - C C":-75720},"Insurance Chargers A/c - Office":{"Yes Bank Ltd. (Cc A/C)":17758,"Prepaid Insurance":-4524},"Insurance Charges (Motor Car)":{"Shreenath Motors Pvt Ltd":42822,"Prepaid Insurance":-15252},"Insurance Charges A/C ( Employee )":{"Star Health And Allied Insurance Co. Ltd.":680201,"Prepaid Insurance":-17602},"Insurance Charges A\C ( Stock )":{"Prepaid Insurance":65281,"National Insurance Company Limited":257503},"Interest On Unsecured Loan":{"VIBHA ASHISH BHANDARI (USL)":152891,"UNITED MEDIA WORKS PVT LTD":812327,"UNITED FASHION APPARELS PVT LTD - LOAN":1090722,"SHANTADEVI D. BHANDARI (USL)":250845,"Sandhya Chandan Bhandari":1187,"SACHIN DAMODAR  BHANDARI":77180,"NEHA SACHIN BHANDARI (USL)":146324,"CHANDAN O.  BHANDARI (USL)":21316,"ASHISH  DAMODAR BHANDARI":320320},"Interest Received From Parties":{"Axis Bank Ltd - C C":-24000},"Interest Recevied On Fix Deposit - Axis":{"Tds Receivable A/C A.Y 2025-26":-9167,"Interest Accrued On Deposit - Axis":-82499},"Interest Recevied On Fix Deposit - Yes":{"Tds Receivable A/C A.Y 2025-26":-228444,"Interest Accrued On Deposit - Yes":-2055995},"Interest To Creditors":{"Saurabh Enterprises":164095,"MUKESHKUMAR AND CO":12149,"Malchand And Co Fabric Pvt. Ltd.":72224},"Internet Service Charges":{"Unclaimed Sgst Input ( Fy-2023-2024)":387,"Unclaimed Cgst Input ( Fy-2023-2024)":387,"SHIVAM INTERNET":17200,"Deesha Internet Services":7500},"Late Delivery Charges":{"Unclaimed Sgst Input ( Fy-2023-2024)":1194,"Unclaimed Cgst Input ( Fy-2023-2024)":1194,"Shoppers Stop Limited (Mumbai Dc)":81600,"RELIANCE RETAIL LIMITED (MUM)":539686},"Legal Fees":{"PRITHAVIRAJ SINGH":24000},"Manpower Cost A/C":{"Rupali Sanjay Kage":200000,"Ritesh Santosh Jondhale - Exp":143331,"Pratibha Gajbhiye":120000,"Nidhi Prashant Humane":84375,"Kirit Darji":523871,"Janardan Pradhan":334300,"Dipak Ramrao Sonawane":333900,"Devesh Sanjay Tiwari":320415,"Ashish Pandey":65832,"Ashika Jain":417742,"Abdul":445430},"Miscellenous Income":{"Yes Bank Ltd. (Cc A/C)":-4920},"Motor Bike Exp A/C -1896":{"Cash In Hand":1300},"Motor Bike Exp A/C -4983":{"Cash In Hand":2260},"Motor Bike Exp A/C -6964":{"Yes Bank Ltd. (Cc A/C)":963,"Cash In Hand":400},"Motor Bike Exp A/C- 8535":{"Yes Bank Ltd. (Cc A/C)":14713,"Cash In Hand":1800},"Motor Vehical Expenses A\C":{"Yes Bank Ltd. (Cc A/C)":4381,"Cash In Hand":433368},"Motor Vehical Repairing Exp A/C - 6662 Bmw":{"Cash In Hand":48150},"Motor Vehical Repairing Exp A/C - 7955 Ciaze":{"Cash In Hand":45760},"Msme Interest Expesnes":{"Provision For Interest On Msme Delay Payment":1943375},"Office Expense A/c":{"Yes Bank Ltd. (Cc A/C)":87338,"Yes Bank Cc - 9351":51,"Shreenath Motors Pvt Ltd":1000,"Shoppers Stop Limited (Mumbai Dc)":2000,"Shakti Enterprises":4190,"Sara & Associates (Tax)":896,"Pratibha Fire Services":4800,"PCI PEST CONTROL PVT. LTD.":11021,"PAREKH SHARMA & ASSOCIATES":9927,"Manoj Singh - Reimbursement":32,"HINDUSTAN CHAMBER OF COMMERCE":1700,"Ganpati Fabrics (Pur)":4762,"Cash In Hand":272871,"Bhavna D. Rughani":1500},"Office Rent A/c":{"SACHIN D BHANDARI ( OFFICE - RENT )":360000,"Kanchan Rajesh Hinduja - Rent":712500,"ASHISH DAMODAR BHANDARI ( OFFICE - RENT)":360000},"Overtime Allowance":{"Vishal Vilas Kurtadkar":677,"Tejal Kadam - Salary":1444,"SURESH RAMDIN SAROJ":19144,"Sapna Kumari":9272,"SANTOSH SAKHARAM HASOLKAR":635,"SANTOSH KASHINATH PAWAR":89184,"Rajesh Kumar Saheblal Yadav":35135,"PURKARAM BHAVARLAL RENNA":49465,"PRONOY NAMASUDRA":13424,"PRASHANT RAUT":36219,"Pradipta Mandal - Salary":17059,"PARAMANANDAM GADADAS":5118,"MEGHA SUSHIL PATEKAR":5320,"KISAN VITHAL MATRE":42630,"Ganesh Chhotu Patil":2838,"DILIP KASHINATH AGHAV":46776,"ARVIND RAMASHANKAR SINGH":20784,"ANJANI KUMAR DUBEY":5871},"P. F. Admin Charges":{"Ho United Textiles Mills Pvt. Ltd.":23548},"Performance Linked Incentive":{"HEMANT PUROHIT":79110,"ANJANI KUMAR DUBEY":45000},"Postage & Courier Exp. A/c":{"Yes Bank Ltd. (Cc A/C)":160855,"Unclaimed Sgst Input ( Fy-2023-2024)":49,"Unclaimed Igst Input ( Fy-2023-2024)":1746,"Unclaimed Cgst Input ( Fy-2023-2024)":49,"Tcii Express  Ltd-Gujrat":16537,"TAG ID SOLUTIONS PVT. LTD.":65,"SIDDHI CREATION":2560,"Shreeji Enterprise (Courier)":1785,"Shree Progressive Courier Service":32028,"Shree Maruti Integrated Logistics Ltd.":176929,"SATYASAGAR ENTERPRISES":200,"Rapid Express":2927,"Rajeshwar Trading Co.":2768,"Om Express":137184,"NATIONAL PRINTING PRESS":400,"Kheteshwar Enterprise":439008,"GLOBAL SALES":300,"FORTUNE LABELS":900,"Dilip Enterprise":53590,"Chetan Parcel Service":8610,"Cash In Hand":9222,"Bhavesh Enterprise":15958},"Printing & Stationery Exp. A/c":{"Yes Bank Ltd. (Cc A/C)":45294,"System Technologies":6000,"Shakti Enterprises":83114,"MARUTI PRINTS":8750,"KHUSHI PRINT HOUSE":644,"Cash In Hand":39146,"Baranipriya Printers":100},"Processing & Franking Exp":{"Yes Bank Ltd. (Cc A/C)":62500,"Hsbc - Exp":240000,"Axis Bank Ltd - Exp":1317500,"Axis Bank Ltd - C C":-1312899},"Professional Fees A/C":{"Valserve Corporte Advisors Llp":460000,"SARA & ASSOCIATES":81000,"Sanjeev Nandkishore Attal (Prof)":3300000,"S.K. Enterprises":6500,"PAREKH SHARMA & ASSOCIATES":54050,"Id.Nirmam Shah":198550,"DEVKANTA SERVICES":55000,"Axis Bank Ltd - C C":14715,"Anand Consultancy Services":90000,"Accordia Global Compliance Group (India) Pvt. Ltd.":77000},"Property Tax":{"Skyvistas Co-Op Housing Society Ltd":39010,"Ghanshyam Co-Op. Ind.Estate Ltd.":13224,"AZAD NAGAR SANGAM CO-OP.HSG.SOC.LTD":59482},"Remuneration To Auditors":{"SARA & ASSOCIATES":260000},"Rent  A/c ( Godown )":{"Surendra Jagannath Kundra":17010,"Shiv Plywood And Hardware Store":155834,"Shardadevi Surendrakumar Kundra":17010,"Rishab Industries - (Rent)":2505600,"RAKESH VIRACHAND MALDE":155916,"Jayshree Arvind  Panchal - Rent":103166,"Furniture Park":463715,"Accurate Trans Heat Pvt. Ltd. (Rent)":232925,"4 - United Textile Mills Pvt Ltd (Myntra Usl)":-117904},"Repair & Maintainance ( Other)":{"Yes Bank Ltd. (Cc A/C)":63758,"Lucky Hoist Service":7750,"Globale Textile Market Commercial And Service Co Op Soc Ltd":10800,"Cash In Hand":44494},"Repair & Maintainance ( P & M)":{"Girison Engineering System":910},"Repair & Maintainance - Computers":{"Technocrat Systems":6700,"Tanvi Electro System":750},"Repair & Maintainance - Office":{"Yes Bank Ltd. (Cc A/C)":180,"The Good Stone Company":52150,"Shree Prakash Electric And Hardware Stores":43893,"SAI COMPUTER":53828,"Ramgopal Gupta":52904,"Rajesh Singh":14700,"NEW TECH SYSTEMS":6290,"Maharashtra Telecom":46275,"KOTHARI ELECTRIC SERVICES PVT LTD":1907,"Arvind Yadav":53857,"Altra Lite Luminaires":5001},"Repair & Maintainance - Warehouse":{"Yes Bank Ltd. (Cc A/C)":6650,"ARIHANT MAINTENANCE SERVICE":94500},"Roc Challan Payment":{"Yes Bank Ltd. (Cc A/C)":500,"Sara & Associates (Tax)":3900},"Round Off A / C":{"Vividhaan Text Processors Pvt. Ltd.":1,"VISHAKA EXPORTS":-1,"VINAYAK PACKAGING INDUSTRIES":1,"VEEHA CREATION":-2,"VARDHMAN TRADERS":2,"Vakil Mahadev Patil (Stitching)":-1,"TESTTEX INDIA LABORATORIES PVT.LTD":5,"Tcii Express  Ltd-Gujrat":-1,"TAJ COTTON FABRICS PVT LTD.":-1,"TAG ID SOLUTIONS PVT. LTD.":1,"T. P. TEXTILES PVT. LTD.":2,"Swar-Savi Enterprises":-1,"Square Packwell":-1,"SOUTH GUJARAT TRANSPORT PVT LTD.":4,"Smartpaddle Technology Pvt. Ltd. (Urban) Bengaluru":-1,"Smartpaddle Technology Pvt. Ltd. (Mumbai)":-2,"Skyvistas Co-Op Housing Society Ltd":1,"SINGHANIA ART":2,"Silverbill Packaging Llp":-1,"SIDDHIVINAYAK FACILITY SERVICES LLP":1,"SIDDHI CREATION":1,"Siddharth Embroidery":11,"SHRIRAM FASHION":1,"Shri Rajtilak Packaging Industries":1,"Shri Radha Industries":-1,"SHREYA PRINT ARTS":1,"Shreeji Enterprise (Courier)":1,"Shreeji Apparel":8,"SHREE VALLABH ENTERPRISES":-1,"SHREE SANT KRUPA GARMENTS":-1,"SHREE SAKTHIVINAYAGAR WEAVES PVT LTD":4,"Shree Sai Stationery":2,"Shree Prakash Electric And Hardware Stores":1,"Shree Modeshwari Logistics Pvt Ltd":1,"SHREE M. G. MENDING JOB WORK":1,"Shree Aditya Creations":1,"SHLOK INDUSTRIES":1,"Shiv Plywood And Hardware Store":-2,"Shakti Enterprises":1,"Shakera Textiles":1,"Shailesh Fab":1,"Sgst Payable/ Receivable - Gujarat":-3,"Seema Creations":1,"SAYAR SILK MILLS":1,"Saurabh Enterprises":6,"SATYASAGAR ENTERPRISES":-2,"Salasar Synthetic Mills":-1,"Salasar Creations - Unit I":1,"RUCHI LACE":-3,"R-Reliance Retail Ltd (West Bengal)":13,"R-Reliance Retail Ltd (Telangana)":10,"R-Reliance Retail Ltd (Rajasthan)":-8,"R-Reliance Retail Ltd (Raipur)":2,"R-Reliance Retail Ltd (Punjab)":-1,"R-Reliance Retail Ltd (Puducherry)":1,"R-Reliance Retail Ltd (Odisha)":3,"R-Reliance Retail Ltd (Navi Mumbai)":6,"R-Reliance Retail Ltd (Madhya Pradesh)":-11,"R-Reliance Retail Ltd (Lucknow)":21,"R-Reliance Retail Ltd (Kerala)":-1,"R-Reliance Retail Ltd (Karnataka)":-5,"R-Reliance Retail Ltd (Jharkhand)":6,"R-Reliance Retail Ltd (Haryana)":2,"R-Reliance Retail Ltd (Gujrat)":-8,"R-Reliance Retail Ltd (Goa)":1,"R-Reliance Retail Ltd (Delhi)":2,"R-Reliance Retail Ltd (Dehradun)":2,"R-Reliance Retail Ltd (Chennai)":-13,"R-Reliance Retail Ltd (Bihar)":-4,"R-Reliance Retail Ltd (Assam)":-4,"R-Reliance Retail Ltd (Andhra Pradesh)":-3,"R-Reliance Retail Ltd (Ahmedabad)":-1,"R-Reliance Retail Limited (Chandigarh)":1,"Rina Art":-1,"RIDDHI SIDDHI ENTERPRISES":-3,"Reliance Retail Ltd. (Vijayawada)":4,"Reliance Retail Ltd.":1,"Reliance Retail Limited -Exp":-2,"Reliance Retail Limited (West Bengal)":-1,"Reliance Retail Limited (Unnao)":8,"RELIANCE RETAIL LIMITED (PUNE)":-1,"Reliance Retail Limited (Ponnani)":1,"RELIANCE RETAIL LIMITED (MUM)":1,"Reliance Retail Limited (Jhajjar)":-8,"Reliance Retail Limited (Hyderabad)-":-4,"Reliance Retail Limited (Hosakote)":-1,"RELIANCE RETAIL LIMITED (HOOGHLI)":-4,"RELIANCE RETAIL LIMITED (HOBLI)":1,"Reliance Retail Limited (Haripal)":-3,"RELIANCE RETAIL LIMITED (DINDIGUL)":-1,"RELIANCE RETAIL LIMITED (CHENNAI)":-3,"Reliance Retail Limited (Bilaspur)":1,"Reliance Retail Limited (Barasat)":1,"Reliance Retail Limited - Kacharakanahalli":-9,"Reliance Retail Limited - Jhajjar":1,"Rama Textile Processors":-1,"Rajputana Impex":1,"Rajeshwar Trading Co.":8,"Raj Fashion":2,"Radhika Fashion (Pur).":1,"Radhey Krishna":8,"RADHE SHYAM PRINT":1,"Radhapati Creations":1,"PRABHA CREATION.":-4,"Pioneer Embroideries Ltd. (Job).":-2,"Pioneer Embroideries Ltd - Dhule (Sale)":1,"Pioneer Embroideries Limited - (Dhule)":-1,"PIONEER DYEING PVT. LTD.":11,"Om Express":1,"Noble 3":2,"NIMBUS LABELS PVT. LTD.":-1,"NILAMBER DYEING &  BLEACHING MILLS P. LTD.":1,"Nexon Omniverse Limited (Thane)":1,"Nexon Omniverse Limited (Telangana)":-21,"Nexon Omniverse Limited (Kochi.)":-1,"Nexon Omniverse Limited ( Kozhikode)":-1,"Nexon Omniverse Limited ( Kottayam.)":-1,"Nexon Omniverse Limited ( Ernakulam)":-1,"NATIONAL PRINTING PRESS":1,"National Insurance Company Limited":-1,"National Enterprises":1,"Muskan Enterprises":1,"Meeha Fashion":1,"MANI FABRS":-1,"MANGAL TEXTILES MILLS (INDIA) P.LTD.":5,"Makemytrip (India) Private Limited - Haryana":1,"Lifestyle International Pvt. Ltd. (Howarah)":1,"Lifestyle International Pvt. Ltd. (Ghaziabad)":10,"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)":2,"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)":1,"Leo Lables":1,"KRISLON CREATION PVT LTD":1,"KHUSHI PRINT HOUSE":1,"Kewal Textiles":-1,"KARISHMA GARMENTS":-1,"KANIKA FASHION FABRICS":3,"Kailash Processors":-1,"Kabir Texofab":-8,"Jay Industrial Chemical Pvt Ltd":10,"Iris Fashion":-1,"INTERTEK INDIA PVT. LTD. (MUMBAI)":1,"Indian Stitching Company.":-1,"Igst Payable / Receivable - Gujarat":-1,"IDT FASHION TRIMMINGS PVT. LTD.":2,"HIRA SYNTEX PVT. LTD.":1,"Gst On Rcm":2,"GLOBAL SALES":2,"Ginza Industries Limited":-2,"Ghanshyam Dyeing (Acc)":7,"GANGA EXPORTS":-1,"Ganesh Garments":1,"FUTURE ENTERPRISES LTD. (RRL)":1,"Dilip Dinkar Ghatte":1,"Diaan Tex Fab Private Limited":-1,"Devansh Creation":1,"Delta Manufacturing Limited":-1,"CHIRIPAL INDUSTRIES LTD..":2,"Cgst Payable/ Receivable - Gujarat":-3,"Bhramdev Garments":1,"Bhavesh Enterprise":1,"BHARAT GARMENTS COMPANY":1,"Bhairav Exports Industry Private Limited":2,"BELLFLOWER TRADING COMPANY PVT. LTD.":-3,"Banswara Syntex Limited":1,"B K Textiles":1,"AZAD NAGAR SANGAM CO-OP.HSG.SOC.LTD":1,"AVENUE SUPERMARTS LTD - VADODARA":-3,"Avenue Supermarts Ltd - Isnapur":2,"AUSTIN PACKAGING":1,"ASHOK DINKAR GHATTE":1,"AMS NARULA LABLES PVT. LTD.":1,"Ajanta Silk (Finish)":-13,"ADDUCO INDUSTRIES":3,"Adduco Fashion Llp-Stitcher":2,"A. S. TEXTILE (GREY)":-1,"A Square Clothing.":-1},"Round Off A/c":{"National Insurance Company Limited":1},"Salary & Wages":{"Vishal Vilas Kurtadkar":231000,"Tejal Kadam - Salary":259695,"SURESH RAMDIN SAROJ":256324,"SUGNARAM":441564,"Shyam Sunder Dubey":234000,"SHREE DAFTARY":509194,"Sapna Kumari":246298,"SANTOSH SAKHARAM HASOLKAR":231037,"SANTOSH KASHINATH PAWAR":686645,"SANJEEV ATTAL":3600000,"SACHIN GOPALE":324000,"RAM ASHISH RAM DEV THAKUR":774568,"Rajesh Kumar Saheblal Yadav":530184,"PURKARAM BHAVARLAL RENNA":269615,"PRONOY NAMASUDRA":165162,"PRIYANKA SACHDEV":682903,"Pratiksha Sawant- Salary":323084,"Pratiksha Bhojane":304605,"PRASHANT RAUT":280561,"Pradipta Mandal - Salary":381262,"Pradeep Tripathy":126388,"PARAMANANDAM GADADAS":474724,"MOHIT YADAV":579740,"MEGHA SUSHIL PATEKAR":231586,"Manoj Kumar Singh":420169,"Kushal G Bhandari - Salary":334000,"KISAN VITHAL MATRE":372107,"KAMLESH RAI":402828,"KALPANA ATTAL":10000,"Hiteshree Charla - Salary":329058,"HIRALAL SHARMA":460752,"HEMANT PUROHIT":73386,"Ganesh Chhotu Patil":338729,"DILIP KASHINATH AGHAV":291047,"Ashwini Rohan Rasal":375244,"ARVIND RAMASHANKAR SINGH":221129,"Archit Bharat Bhandari":100000,"ANJANI KUMAR DUBEY":720000},"Society Maintenance":{"Skyvistas Co-Op Housing Society Ltd":-167521,"Ghanshyam Co-Op. Ind.Estate Ltd.":50880,"AZAD NAGAR SANGAM CO-OP.HSG.SOC.LTD":212394},"Staff Welfare  A\C":{"Yes Bank Ltd. (Cc A/C)":505275,"Unclaimed Sgst Input ( Fy-2023-2024)":1625,"Unclaimed Cgst Input ( Fy-2023-2024)":1625,"SHIVA ENTERPRISES":22275,"Sgst Block Credit":1548,"Mahanagar Gas Ltd Ca No. 210000948077":482,"Hotel Prime And Guest House":1333,"Cgst Blocked Credit":1548,"Cash In Hand":130121,"Bikaji Foods International Limited":61905,"ASHISH  BHANDARI (EXP)":23119},"Stamp Duty & Registration":{"Yes Bank Ltd. (Cc A/C)":419300,"Bhavna D. Rughani":160500},"Subscription Fees":{"ROYAL DATAMATICS PVT. LTD.":17000,"Prepaid Exp.":-14145,"Nexon Omniverse Limited (Thane)":21600},"Telephone Expenses":{"Yes Bank Ltd. (Cc A/C)":13863,"Cash In Hand":43805,"Bharti Airtel Limited (022 45144974, 02219352643-Wifi)":6624},"Trade Mark Exp.":{"A TO Z SERVICES PVT LTD":5800},"Travelling Expenses (Domestic)":{"Yes Bank Ltd. (Cc A/C)":333022,"Snv Aviation Private Limited":23079,"Rathna Residency":16334,"Makemytrip (India) Private Limited - Haryana":62975,"Interglobe Aviation Limited-Gujarat":2035,"Interglobe Aviation Limited":13233,"Igst Blocked Credit":1620,"Cash In Hand":209481,"Ashish  Bhandari - Reimbursement":75616,"Air India Limited (West Bengal)":12032,"Air India Limited (Mumbai)":11708,"Air India Limited (Gujarat)":8348,"Air India Limited (Delhi)":10233},"Write Of A/c Sundry Credit Balance":{"Shutter Images Pvt. Ltd.":-9024,"SHREENATH EMBROIDERY WORKS":-1728,"SHREE KARNI JI SILK MILLS":-254,"Sai Logistics":-120,"Rudra Creation":-212,"Radhey Krishna":-101,"PIONEER DYEING PVT. LTD.":-93,"Perfect Clothing - Sticher":-3434,"Padmanabh Creation Private Limited":-1174,"KRISLON CREATION PVT LTD":-170,"Kirit Darji":-25,"Jay Industrial Chemical Pvt Ltd":-1112,"H.S.Accessories":-48,"ARSH EMBROIDERY":-167,"ABHIAN IMPEX":-330,"A Square Clothing.":-12},"Write Of A/c Sundry Debit Balance":{"Siddharth Pruthi Photography":455,"Shyamsunder Dubey - Loans":211386,"SATYASAGAR ENTERPRISES":8442,"Reliance Retail Limited (Jhajjar)":291,"Nexon Omniverse Limited (Telangana)":97,"LIFESTYLE INTERNATIONAL PVT. LTD. (HYDERABAD)":2182,"Lifestyle International Pvt. Ltd. (Howarah)":1783,"Lifestyle International Pvt. Ltd. (Ghaziabad)":2756,"LIFESTYLE INTERNATIONAL PVT. LTD. (BHIWANDI)":584,"LIFESTYLE INTERNATIONAL PVT. LTD. (BANGALORE)":8180,"H K BUTTONS PVT. LTD.":1215,"GANGA EXPORTS":705,"C. Bhogilal & Co.":1917,"Bhairav Exports Industry Private Limited":15,"B K Textiles":12,"Attire Fashion House":4495,"ADDUCO FASHION LLP":39}}};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let selParties = new Set(D.parties);
+let selMonths  = new Set(D.months);
+const PARTY_COLORS = {Reliance:'#2563eb',Nexon:'#7c3aed','D Mart':'#0891b2',Lifestyle:'#0b8f5e',Mogli:'#d97706',Others:'#6b7394'};
+const COGS_COLORS  = ['#2563eb','#7c3aed','#0891b2','#0b8f5e','#d97706','#e11d48','#ea580c','#16a34a','#db2777','#0284c7','#9333ea','#64748b'];
+const PL_COLORS    = ['#2563eb','#e11d48','#7c3aed','#0891b2','#0b8f5e','#d97706','#64748b','#16a34a'];
+const SOURCE_COLORS= {'Garment Sales':'#2563eb','Grey Sales':'#7c3aed','Accessories Sales':'#0891b2','Interunit Sales':'#0b8f5e','Machine Sales':'#d97706'};
+let charts = {};
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const cr = v => {
+  const n = Math.abs(v), neg = v < 0;
+  const s = n.toFixed(2).split('.');
+  let int = s[0], dec = s[1];
+  if(int.length > 3){
+    const last3 = int.slice(-3), rest = int.slice(0,-3);
+    const grp = []; let r = rest;
+    while(r.length > 2){grp.unshift(r.slice(-2));r = r.slice(0,-2);}
+    if(r) grp.unshift(r);
+    int = grp.join(',') + ',' + last3;
+  }
+  return (neg?'-':'') + '₹' + int + '.' + dec;
+};
+const lk = v => (v/1e5).toFixed(2);
+const cr2 = v => { const n=Math.abs(v); return (v<0?'-':'')+'₹'+(n>=1e7?(n/1e7).toFixed(2)+'Cr':(n/1e5).toFixed(1)+'L'); };
+const pct = (a,b) => b ? (a/b*100).toFixed(1)+'%' : '–';
+const mkc = hex => { const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b}`;};
+
+// Aggregate filtered months (month filter only, not party)
+function mthSum(key) {
+  if(key==='indirect' && selMonths.size===D.months.length){
+    return Object.values(D.pl_annual).reduce((a,b)=>a+b,0);
+  }
+  return [...selMonths].reduce((s,m)=> s + (D.mth[m]?.[key]||0), 0);
+}
+function mthSumPlCat(cat) {
+  if(selMonths.size===D.months.length) return D.pl_annual[cat]||0;
+  return [...selMonths].reduce((s,m)=>s+(D.mth[m]?.pl_cat?.[cat]||0),0);
+}
+function mthArr(key) {
+  return D.months.filter(m=>selMonths.has(m)).map(m=>D.mth[m]?.[key]||0);
+}
+function mthCogsCat(cat) {
+  return D.months.filter(m=>selMonths.has(m)).map(m=>D.mth[m]?.cogs_cat?.[cat]||0);
+}
+function mthPlCat(cat) {
+  return D.months.filter(m=>selMonths.has(m)).map(m=>D.mth[m]?.pl_cat?.[cat]||0);
+}
+function visMonths() { return D.months.filter(m=>selMonths.has(m)); }
+
+// Party-filtered KPIs (only for sales/returns/net sales)
+function partyGross() { return [...selParties].reduce((s,p)=>s+(D.party_gross[p]||0),0); }
+function partyReturns() { return [...selParties].reduce((s,p)=>s+(D.party_notes[p]||0),0); }
+function partyNotes() { return [...selParties].reduce((s,p)=>s+(D.party_returns[p]||0),0); }
+function partyNetSales() { return partyGross()-partyReturns()-partyNotes(); }
+
+// ─── TOOLTIP ─────────────────────────────────────────────────────────────────
+const tt = document.getElementById('tooltip');
+function showTT(e,title,rows){
+  document.getElementById('tt-title').textContent=title;
+  document.getElementById('tt-body').innerHTML=rows.map(r=>`<div class="tt-row"><span class="tt-key">${r[0]}</span><span class="tt-val">${r[1]}</span></div>`).join('');
+  tt.classList.add('show');
+  moveTT(e);
+}
+function moveTT(e){ tt.style.left=(e.clientX+14)+'px'; tt.style.top=(e.clientY-10)+'px'; }
+function hideTT(){ tt.classList.remove('show'); }
+document.addEventListener('mousemove',moveTT);
+
+// ─── CHART FACTORY ───────────────────────────────────────────────────────────
+function mkChart(id, type, data, opts={}){
+  const el = document.getElementById(id);
+  if(charts[id]){ charts[id].destroy(); }
+  const ctx = el.getContext('2d');
+  charts[id] = new Chart(ctx, {type, data, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},...opts}});
+  el.style.height = el.parentElement.style.minHeight || '160px';
+  return charts[id];
+}
+
+// ─── DONUT ───────────────────────────────────────────────────────────────────
+function mkDonut(svgId, legId, labels, values, colors){
+  const total = values.reduce((a,b)=>a+Math.abs(b),0);
+  const cx=70,cy=70,r=58,ir=36;
+  let startAngle=-Math.PI/2;
+  let paths='';
+  const absVals = values.map(v=>Math.abs(v));
+  absVals.forEach((v,i)=>{
+    const angle = (v/total)*Math.PI*2;
+    const x1=cx+r*Math.cos(startAngle), y1=cy+r*Math.sin(startAngle);
+    const x2=cx+r*Math.cos(startAngle+angle), y2=cy+r*Math.sin(startAngle+angle);
+    const xi1=cx+ir*Math.cos(startAngle), yi1=cy+ir*Math.sin(startAngle);
+    const xi2=cx+ir*Math.cos(startAngle+angle), yi2=cy+ir*Math.sin(startAngle+angle);
+    const lg=angle>Math.PI?1:0;
+    paths+=`<path d="M${xi1},${yi1} L${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2} L${xi2},${yi2} A${ir},${ir} 0 ${lg},0 ${xi1},${yi1}" fill="${colors[i]}" opacity=".85"/>`;
+    startAngle+=angle;
+  });
+  document.getElementById(svgId).innerHTML=paths;
+  const leg = document.getElementById(legId);
+  leg.innerHTML = labels.map((l,i)=>`<div class="leg-row"><div class="leg-dot" style="background:${colors[i]}"></div><span class="leg-lbl">${l}</span><span class="leg-val">${pct(Math.abs(values[i]),total)}</span></div>`).join('');
+}
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+function buildChips(){
+  const pc = document.getElementById('party-chips');
+  const allPartiesBtn=document.createElement('div');
+  allPartiesBtn.className='chip active'; allPartiesBtn.textContent='All'; allPartiesBtn.style.setProperty('--cc','#2563eb');
+  allPartiesBtn.onclick=()=>{
+    selParties=new Set(D.parties);
+    pc.querySelectorAll('.chip:not(:first-child)').forEach(c=>c.classList.add('active'));
+    allPartiesBtn.classList.add('active');
+    renderAll();
+  };
+  pc.appendChild(allPartiesBtn);
+  D.parties.forEach(p=>{
+    const c=document.createElement('div');
+    c.className='chip active'; c.textContent=p;
+    c.style.setProperty('--cc', PARTY_COLORS[p]||'#2563eb');
+    c.onclick=()=>{
+      const allSel = selParties.size===D.parties.length;
+      if(allSel){
+        // isolate this one
+        selParties=new Set([p]);
+        pc.querySelectorAll('.chip:not(:first-child)').forEach(cc=>cc.classList.remove('active'));
+        c.classList.add('active');
+      } else if(selParties.has(p) && selParties.size===1){
+        // reselect all
+        selParties=new Set(D.parties);
+        pc.querySelectorAll('.chip').forEach(cc=>cc.classList.add('active'));
+      } else if(selParties.has(p)){
+        selParties.delete(p); c.classList.remove('active');
+      } else {
+        selParties.add(p); c.classList.add('active');
+      }
+      // sync All btn
+      allPartiesBtn.classList.toggle('active', selParties.size===D.parties.length);
+      renderAll();
+    };
+    pc.appendChild(c);
+  });
+
+  const mc = document.getElementById('mo-chips');
+  const allMoBtn=document.createElement('div');
+  allMoBtn.className='chip active'; allMoBtn.textContent='All'; allMoBtn.style.setProperty('--cc','#2563eb');
+  allMoBtn.onclick=()=>{
+    selMonths=new Set(D.months);
+    mc.querySelectorAll('.chip:not(:first-child)').forEach(c=>c.classList.add('active'));
+    allMoBtn.classList.add('active');
+    renderAll();
+  };
+  mc.appendChild(allMoBtn);
+  D.months.forEach(m=>{
+    const c=document.createElement('div');
+    c.className='chip active'; c.textContent=m;
+    c.style.setProperty('--cc','#2563eb');
+    c.onclick=()=>{
+      const allSel = selMonths.size===D.months.length;
+      if(allSel){
+        selMonths=new Set([m]);
+        mc.querySelectorAll('.chip:not(:first-child)').forEach(cc=>cc.classList.remove('active'));
+        c.classList.add('active');
+      } else if(selMonths.has(m) && selMonths.size===1){
+        selMonths=new Set(D.months);
+        mc.querySelectorAll('.chip').forEach(cc=>cc.classList.add('active'));
+      } else if(selMonths.has(m)){
+        selMonths.delete(m); c.classList.remove('active');
+      } else {
+        selMonths.add(m); c.classList.add('active');
+      }
+      allMoBtn.classList.toggle('active', selMonths.size===D.months.length);
+      renderAll();
+    };
+    mc.appendChild(c);
+  });
+}
+
+// ─── KPI BUILDER ─────────────────────────────────────────────────────────────
+function kpi(lbl, val, sub, badge='', accent='var(--blue)'){
+  return `<div class="kpi" style="--accent:${accent}">
+    <div class="kpi-lbl">${lbl}</div>
+    <div class="kpi-val">${val}</div>
+    <div class="kpi-sub">${sub}</div>
+    ${badge?`<div class="kpi-badge ${badge.cls}">${badge.txt}</div>`:''}
+  </div>`;
+}
+
+// ─── RENDER OVERVIEW ─────────────────────────────────────────────────────────
+function renderOverview(){
+  // KPIs — gross/returns/net affected by party filter; cogs/profit by month filter
+  const gGross=partyGross(), gRet=partyReturns(), gNotes=partyNotes(), gNet=partyNetSales();
+  const directCogs=mthSum('direct_cogs'), indirectCogs=mthSum('indirect');
+  const gp=mthSum('gross_profit');
+  const totalCost=directCogs+indirectCogs;
+  const gpPct=gNet?gp/gNet*100:0, npPct=gNet?(gp-indirectCogs)/gNet*100:0;
+  // Pcs & ASP — party filtered, non-accessories only
+  const totalPcs=[...selParties].reduce((s,p)=>s+(D.party_pcs[p]||0),0);
+  const gNetNoAcc=[...selParties].reduce((s,p)=>s+(D.party_gross_nonacc[p]||0)-(D.party_returns[p]||0)-(D.party_notes[p]||0),0);
+  const asp=totalPcs?gNetNoAcc/totalPcs:0;
+
+  document.getElementById('ov-ins').innerHTML=
+    `<strong>FY 2025–26 Summary:</strong> Gross Sales <strong>${cr2(gGross)}</strong> · Net Sales <strong>${cr2(gNet)}</strong> · Gross Profit <strong>${cr2(gp)}</strong> (${gpPct.toFixed(1)}%) · Net Profit <strong>${cr2(gp-indirectCogs)}</strong> (${npPct.toFixed(1)}%) · Total Pcs <strong>${totalPcs.toLocaleString('en-IN')}</strong> · ASP <strong>₹${Math.round(asp)}</strong>. ⚠ Monthly P&L distorted by stock movements — annual totals are accurate.`;
+
+  document.getElementById('ov-kpi-row1').innerHTML=
+    kpi('Gross Sales',cr2(gGross),'Party filtered','','var(--blue)')+
+    kpi('Returns + Adj',cr2(gRet+gNotes),`${pct(gRet+gNotes,gGross)} of gross`,'','var(--red)')+
+    kpi('Net Sales',cr2(gNet),'After deductions','','var(--green)')+
+    kpi('Total Cost',cr2(totalCost),'COGS + Indirect','','var(--purple)');
+  document.getElementById('ov-kpi-row2').innerHTML=
+    kpi('Gross Profit',cr2(gp),`${gpPct.toFixed(1)}% of net sales`,'','var(--cyan)')+
+    kpi('Net Profit',cr2(gp-indirectCogs),`${npPct.toFixed(1)}% of net sales`,'','var(--green)')+
+    kpi('Total Pcs',totalPcs.toLocaleString('en-IN'),'Net of returns','','var(--amber)')+
+    kpi('ASP',`₹${Math.round(asp)}`,'Excl. Accessories','','var(--blue)');
+
+  // Party bar
+  const visP = D.parties.filter(p=>selParties.has(p));
+  mkChart('c-ov-party','bar',{
+    labels: visP,
+    datasets:[{
+      label:'Gross Sales',
+      data: visP.map(p=>+(D.party_gross[p]/1e5).toFixed(2)),
+      backgroundColor: visP.map(p=>mkc(PARTY_COLORS[p]||'#2563eb')+',0.8)'),
+      borderRadius:6, borderSkipped:false
+    }]
+  },{scales:{y:{ticks:{callback:v=>'₹'+v+'L'},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{enabled:true}}});
+
+  // Donut — party revenue share
+  const visP2=D.parties.filter(p=>selParties.has(p));
+  mkDonut('svg-ov-donut','ov-dleg', visP2, visP2.map(p=>D.party_gross[p]), visP2.map(p=>PARTY_COLORS[p]||'#2563eb'));
+
+  // Monthly margin chart
+  const vm = visMonths();
+  mkChart('c-ov-margin','bar',{
+    labels: vm,
+    datasets:[
+      {label:'Net Sales',data:vm.map(m=>+(D.mth[m].net_sales/1e5).toFixed(2)),backgroundColor:mkc('#2563eb')+',0.7)',borderRadius:4,order:2},
+      {label:'Direct COGS',data:vm.map(m=>+(D.mth[m].direct_cogs/1e5).toFixed(2)),backgroundColor:mkc('#e11d48')+',0.5)',borderRadius:4,order:3},
+      {label:'Gross Margin',type:'line',data:vm.map(m=>+(D.mth[m].gross_profit/1e5).toFixed(2)),borderColor:'#0b8f5e',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3,order:1,yAxisID:'y'}
+    ]
+  },{scales:{y:{ticks:{callback:v=>'₹'+v+'L'},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}},plugins:{legend:{display:true,position:'top'},tooltip:{enabled:true}}});
+
+  // Return rate bars
+  const el=document.getElementById('ov-ret');
+  const maxRet=Math.max(...visP.map(p=>{ const g=D.party_gross[p]||0; return g?(D.party_returns[p]+D.party_notes[p])/g*100:0; }),1);
+  el.innerHTML=visP.map(p=>{
+    const g=D.party_gross[p]||0, rate=g?(D.party_returns[p]+D.party_notes[p])/g*100:0;
+    const pctW=(rate/maxRet*100).toFixed(1);
+    return `<div class="bar-row"><div class="bar-name">${p}</div><div class="bar-track"><div class="bar-fill" style="width:${pctW}%;background:${PARTY_COLORS[p]||'#2563eb'}"></div></div><div class="bar-val">${rate.toFixed(2)}%</div></div>`;
+  }).join('');
+}
+
+// ─── RENDER SALES ─────────────────────────────────────────────────────────────
+function renderSales(){
+  const gGross=partyGross(), gNet=partyNetSales(), gRet=partyReturns(), gNotes=partyNotes();
+  const vm=visMonths();
+
+  document.getElementById('sd-ins').innerHTML=
+    `Gross Sales: <strong>${cr(gGross)}</strong> · Net after all deductions: <strong>${cr(gNet)}</strong> · Effective deduction rate: <strong>${pct(gRet+gNotes,gGross)}</strong>`;
+
+  document.getElementById('sd-kpi').innerHTML=
+    kpi('Gross Sales',cr2(gGross),'Party filtered','','var(--blue)')+
+    kpi('Returns',cr2(gRet),`${pct(gRet,gGross)} of gross`,'','var(--red)')+
+    kpi('Adjustments',cr2(gNotes),'Shortage·CD·Disc','','var(--amber)')+
+    kpi('Net Sales',cr2(gNet),'Realised revenue','','var(--green)');
+
+  // Monthly trend — month filter only
+  const allMonthsGross = vm.map(m=>+(D.mth[m].gross/1e5).toFixed(2));
+  mkChart('c-sd-line','line',{
+    labels:vm,
+    datasets:[{
+      label:'Gross Sales (₹L)',
+      data:allMonthsGross,
+      borderColor:'#2563eb',backgroundColor:mkc('#2563eb')+',0.08)',borderWidth:2,fill:true,tension:.3,pointRadius:4
+    },{
+      label:'Net Sales (₹L)',
+      data:vm.map(m=>+(D.mth[m].net_sales/1e5).toFixed(2)),
+      borderColor:'#0b8f5e',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[4,3]
+    }]
+  },{scales:{y:{ticks:{callback:v=>'₹'+v+'L'},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}},plugins:{legend:{display:true,position:'top'},tooltip:{enabled:true}}});
+
+  // Party table
+  const visP=D.parties.filter(p=>selParties.has(p));
+  const totalG=visP.reduce((s,p)=>s+D.party_gross[p],0);
+  document.getElementById('sd-tbody').innerHTML=visP.map(p=>{
+    const g=D.party_gross[p],r=D.party_notes[p],n=D.party_returns[p],net=g-r-n;
+    const retPct=g?(r/g*100).toFixed(1):0;
+    const sharePct=totalG?(g/totalG*100).toFixed(1):0;
+    const cls=retPct>5?'td-r':retPct>2?'td-y':'td-g';
+    const ppcs=(D.party_pcs[p]||0).toLocaleString('en-IN');
+    return `<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${PARTY_COLORS[p]};margin-right:6px"></span>${p}</td>
+      <td class="num">${cr(g)}</td><td class="num td-r">${cr(r)}</td><td class="num td-y">${cr(n)}</td>
+      <td class="num td-g">${cr(net)}</td><td class="num">${ppcs}</td><td class="num ${cls}">${retPct}%</td><td class="num">${sharePct}%</td></tr>`;
+  }).join('') + `<tr style="font-weight:700;border-top:2px solid var(--border)">
+    <td>Total</td><td class="num">${cr(visP.reduce((s,p)=>s+D.party_gross[p],0))}</td>
+    <td class="num td-r">${cr(visP.reduce((s,p)=>s+D.party_notes[p],0))}</td>
+    <td class="num td-y">${cr(visP.reduce((s,p)=>s+D.party_returns[p],0))}</td>
+    <td class="num td-g">${cr(visP.reduce((s,p)=>s+D.party_gross[p]-D.party_returns[p]-D.party_notes[p],0))}</td>
+    <td class="num">${visP.reduce((s,p)=>s+(D.party_pcs[p]||0),0).toLocaleString('en-IN')}</td>
+    <td class="num">–</td><td class="num">100%</td></tr>`;
+
+  // Stacked source chart
+  const sources=['Garment Sales','Grey Sales','Accessories Sales','Interunit Sales','Machine Sales'];
+  const el=document.getElementById('sd-sleg');
+  el.innerHTML=sources.map(s=>`<div class="sl-item"><div class="sl-dot" style="background:${SOURCE_COLORS[s]}"></div>${s}</div>`).join('');
+  mkChart('c-sd-stacked','bar',{
+    labels:vm,
+    datasets:sources.map(s=>({
+      label:s, data:vm.map(m=>+((D.mth[m].src?.[s]||0)/1e5).toFixed(2)),
+      backgroundColor:mkc(SOURCE_COLORS[s]||'#64748b')+',0.8)', borderRadius:3, stack:'s'
+    }))
+  },{scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'₹'+v+'L'},grid:{color:'rgba(0,0,0,.04)'}}},plugins:{legend:{display:false},tooltip:{enabled:true}}});
+}
+
+// ─── RENDER RETURNS ───────────────────────────────────────────────────────────
+function renderReturns(){
+  const gNotes=partyNotes(), gGross=partyGross();
+  const vm=visMonths();
+
+  // Compute returns KPIs from returns_data filtered by selected parties
+  const rdFiltered=D.returns_data?D.returns_data.filter(r=>selParties.has(partyKeyForRow(r.party))):[];
+  const rdShortTotal=rdFiltered.filter(r=>r.type==='Shortage').reduce((s,r)=>s+r.amount,0);
+  const rdCancelTotal=rdFiltered.filter(r=>r.type==='Cancelled Invoice').reduce((s,r)=>s+r.amount,0);
+  const gRet=rdShortTotal+rdCancelTotal;
+
+  document.getElementById('rt-ins').innerHTML=
+    `Total credit notes: <strong>${cr(gRet)}</strong> (${rdFiltered.filter(r=>r.type==='Shortage').length} shortage entries + ${rdFiltered.filter(r=>r.type==='Cancelled Invoice').length} cancelled invoices) · Other adjustments: <strong>${cr(gNotes)}</strong> · Combined deduction: <strong>${pct(gRet+gNotes,gGross)}</strong> of gross.`;
+
+  const gRet2=partyReturns(), gNotes2=partyNotes();
+  document.getElementById('rt-kpi').innerHTML=
+    kpi('Garment CN (Returns)',cr2(gRet2),pct(gRet2,gGross)+' of gross','','var(--red)')+
+    kpi('Other Adj (CN)',cr2(gNotes2),pct(gNotes2,gGross)+' of gross','','var(--amber)')+
+    kpi('Total Deductions',cr2(gRet2+gNotes2),pct(gRet2+gNotes2,gGross)+' of gross','','var(--purple)');
+
+  mkChart('c-rt-trend','bar',{
+    labels:vm,
+    datasets:[
+      {label:'Gross Sales',data:vm.map(m=>+(D.mth[m].gross/1e5).toFixed(2)),backgroundColor:mkc('#2563eb')+',0.15)',borderRadius:3,order:2},
+      {label:'Returns',data:vm.map(m=>+(D.mth[m].returns/1e5).toFixed(2)),backgroundColor:mkc('#e11d48')+',0.8)',borderRadius:3,order:1},
+      {label:'Adjustments',data:vm.map(m=>+(D.mth[m].notes/1e5).toFixed(2)),backgroundColor:mkc('#d97706')+',0.8)',borderRadius:3,order:1}
+    ]
+  },{scales:{y:{ticks:{callback:v=>'₹'+v+'L'},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}},plugins:{legend:{display:true,position:'top'},tooltip:{enabled:true}}});
+
+  mkChart('c-rt-pct','line',{
+    labels:vm,
+    datasets:[{
+      label:'Return+Adj Rate %',
+      data:vm.map(m=>{ const g=D.mth[m].gross; return g?+((D.mth[m].returns+D.mth[m].notes)/g*100).toFixed(2):0; }),
+      borderColor:'#e11d48',backgroundColor:mkc('#e11d48')+',0.1)',borderWidth:2,fill:true,tension:.3,pointRadius:4
+    }]
+  },{scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{enabled:true}}});
+
+  const visP=D.parties.filter(p=>selParties.has(p));
+  const maxR=Math.max(...visP.map(p=>D.party_notes[p]),1);
+  document.getElementById('rt-co-bars').innerHTML=visP.map(p=>{
+    const r=D.party_notes[p], pctW=(r/maxR*100).toFixed(1);
+    return `<div class="bar-row"><div class="bar-name">${p}</div><div class="bar-track"><div class="bar-fill" style="width:${pctW}%;background:${PARTY_COLORS[p]}"></div></div><div class="bar-val">${cr(r)}</div></div>`;
+  }).join('');
+
+  document.getElementById('returns-tbody').innerHTML=visP.map(p=>`<tr><td>${p}</td><td class="num td-r">${cr(D.party_notes[p])}</td></tr>`).join('');
+  document.getElementById('notes-tbody').innerHTML=visP.map(p=>`<tr><td>${p}</td><td class="num td-y">${cr(D.party_returns[p])}</td></tr>`).join('');
+
+  // Returns reason breakdown
+  if(D.returns_data){ renderRetReason(); }
+}
+let _retFilter='all';
+function toggleRetFilter(f){
+  _retFilter=f;
+  ['all','short','cancel'].forEach(x=>document.getElementById('tog-'+x)?.classList.remove('active'));
+  document.getElementById('tog-'+f)?.classList.add('active');
+  renderRetReason();
+}
+function partyKeyForRow(name){
+  const u=name.toUpperCase();
+  if(u.includes('AVENUE')||u.includes('ISNAPUR')||u.includes('BHIWANDI')&&u.includes('SUPERMARTS')) return 'D Mart';
+  if(u.includes('RELIANCE')||u.startsWith('R-RELIANCE')) return 'Reliance';
+  if(u.includes('LIFESTYLE')) return 'Lifestyle';
+  if(u.includes('NEXON')||u.includes('SMARTPADDLE')) return 'Nexon';
+  if(u.includes('MOGLI')) return 'Mogli';
+  return 'Others';
+}
+function renderRetReason(){
+  if(!D.returns_data) return;
+  // filter by selected parties
+  const rd=D.returns_data.filter(r=>selParties.has(partyKeyForRow(r.party)));
+  const shortTotal=rd.filter(r=>r.type==='Shortage').reduce((s,r)=>s+r.amount,0);
+  const cancelTotal=rd.filter(r=>r.type==='Cancelled Invoice').reduce((s,r)=>s+r.amount,0);
+  document.getElementById('ret-reason-summary').innerHTML=
+    `<span style="color:var(--red)">Shortage: <strong>${cr2(shortTotal)}</strong> (${rd.filter(r=>r.type==='Shortage').length} entries)</span> &nbsp;&middot;&nbsp; `+
+    `<span style="color:var(--amber)">Cancelled: <strong>${cr2(cancelTotal)}</strong> (${rd.filter(r=>r.type==='Cancelled Invoice').length} entries)</span> &nbsp;&middot;&nbsp; `+
+    `Total: <strong>${cr2(shortTotal+cancelTotal)}</strong>`;
+  const filtered=_retFilter==='shortage'?rd.filter(r=>r.type==='Shortage'):
+                 _retFilter==='cancel'?rd.filter(r=>r.type==='Cancelled Invoice'):rd;
+  document.getElementById('ret-reason-tbody').innerHTML=filtered.map(r=>{
+    const tc=r.type==='Shortage'?'td-r':'td-y';
+    return `<tr><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.party}">${r.party}</td><td>${r.inv}</td><td class="num">${r.pcs}</td><td class="num ${tc}">${cr(r.amount)}</td><td><span class="badge ${r.type==='Shortage'?'badge-r':'badge-y'}">${r.type}</span></td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.reason}">${r.reason}</td></tr>`;
+  }).join('');
+}
+
+// ─── RENDER OPS ───────────────────────────────────────────────────────────────
+function renderOps(){
+  const vm=visMonths();
+  const stitchTotal=mthSum('direct_cogs'); // use annual
+  const annStitch=Object.values(D.stitch_vendors).reduce((a,b)=>a+b,0);
+  const embAnn=vm.reduce((s,m)=>s+(D.mth[m].cogs_cat?.['Embroidery Charges']||0),0);
+  const procAnn=vm.reduce((s,m)=>s+(D.mth[m].cogs_cat?.['Process Charges']||0),0);
+
+  document.getElementById('op-ins').innerHTML=
+    `Stitching is the largest conversion cost at <strong>${cr2(annStitch)}</strong>. Top 4 stitching vendors account for <strong>${pct(Object.values(D.stitch_vendors).slice(0,4).reduce((a,b)=>a+b,0),annStitch)}</strong> of total stitching spend.`;
+
+  document.getElementById('op-kpi').innerHTML=
+    kpi('Total Stitching',cr2(annStitch),'Annual (all months)','','var(--blue)')+
+    kpi('Embroidery',cr2(embAnn),'Filtered months','','var(--purple)')+
+    kpi('Processing',cr2(procAnn),'Filtered months','','var(--cyan)');
+
+  const sv=D.stitch_vendors;
+  const maxSV=Math.max(...Object.values(sv));
+  document.getElementById('op-sv-bars').innerHTML=Object.entries(sv).slice(0,12).map(([k,v],i)=>{
+    const col=COGS_COLORS[i%COGS_COLORS.length];
+    return `<div class="bar-row"><div class="bar-name">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/maxSV*100).toFixed(1)}%;background:${col}"></div></div><div class="bar-val">${cr(v)}</div></div>`;
+  }).join('');
+
+  const svTotal=Object.values(sv).reduce((a,b)=>a+b,0);
+  document.getElementById('op-stbl').innerHTML=Object.entries(sv).map(([k,v])=>
+    `<tr><td>${k}</td><td class="num">${cr(v)}</td><td class="num">${pct(v,svTotal)}</td></tr>`
+  ).join('');
+}
+
+// ─── RENDER PURCHASE ──────────────────────────────────────────────────────────
+function renderPurchase(){
+  const vm=visMonths();
+  const netSales=mthSum('net_sales'), directCogs=mthSum('direct_cogs');
+  const gp=mthSum('gross_profit'), gpPct=netSales?gp/netSales*100:0;
+
+  // Annual cogs by cat (exclude Stock Adj for donut)
+  const cats=D.cogs_cats.filter(c=>c!=='Stock Adj');
+  const catTotals={};
+  cats.forEach(c=>{ catTotals[c]=vm.reduce((s,m)=>s+(D.mth[m].cogs_cat?.[c]||0),0); });
+  const stockAdj=vm.reduce((s,m)=>s+(D.mth[m].cogs_cat?.['Stock Adj']||0),0);
+
+  document.getElementById('pu-ins').innerHTML=
+    `Direct COGS (month filtered): <strong>${cr2(directCogs)}</strong> · Net Sales: <strong>${cr2(netSales)}</strong> · Gross Margin: <strong>${cr2(gp)}</strong> (${gpPct.toFixed(1)}%). Stock Adj: <strong>${cr2(stockAdj)}</strong> — large seasonal swings distort monthly margins.`;
+
+  document.getElementById('pu-kpi1').innerHTML=
+    kpi('Net Sales',cr2(netSales),'Month filtered','','var(--blue)')+
+    kpi('Direct COGS',cr2(directCogs),'incl. stock adj','','var(--red)')+
+    kpi('Total Cost (COGS+Indirect)',cr2(directCogs+mthSum('indirect')),'All costs','','var(--purple)')+
+    kpi('Net Profit',cr2(gp),gpPct.toFixed(1)+'% margin','','var(--green)');
+
+  const vm2=visMonths();
+  mkChart('c-pu-margin','bar',{
+    labels:vm2,
+    datasets:[
+      {label:'Net Sales',data:vm2.map(m=>+(D.mth[m].net_sales/1e5).toFixed(2)),backgroundColor:mkc('#2563eb')+',0.6)',borderRadius:3,order:2},
+      {label:'Direct COGS',data:vm2.map(m=>+(D.mth[m].direct_cogs/1e5).toFixed(2)),backgroundColor:mkc('#e11d48')+',0.5)',borderRadius:3,order:3},
+      {label:'Gross Margin',type:'line',data:vm2.map(m=>+(D.mth[m].gross_profit/1e5).toFixed(2)),borderColor:'#0b8f5e',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:3,order:1}
+    ]
+  },{scales:{y:{ticks:{callback:v=>'₹'+v+'L'},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}},plugins:{legend:{display:true,position:'top'},tooltip:{enabled:true}}});
+
+  // Donut (excl stock adj)
+  const donutCats=Object.entries(catTotals).filter(([,v])=>v>0);
+  mkDonut('svg-pu-donut','pu-dleg', donutCats.map(([k])=>k), donutCats.map(([,v])=>v), COGS_COLORS);
+
+  // Margin % line
+  mkChart('c-pu-pct','line',{
+    labels:vm2,
+    datasets:[{
+      label:'Gross Margin %',
+      data:vm2.map(m=>{ const ns=D.mth[m].net_sales; return ns?+((D.mth[m].gross_profit/ns)*100).toFixed(1):0; }),
+      borderColor:'#0b8f5e',backgroundColor:mkc('#0b8f5e')+',0.1)',borderWidth:2,fill:true,tension:.3,pointRadius:4
+    }]
+  },{scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{enabled:true}}});
+
+  // Collapsible table: each COGS cat is a header, subcategories are the monthly values
+  const allCats=D.cogs_cats;
+  const annTotal=allCats.reduce((s,c)=>s+vm.reduce((ss,m)=>ss+(D.mth[m].cogs_cat?.[c]||0),0),0);
+  const tbody=document.getElementById('pu-ctbl');
+  const allMonthCols=D.months.filter(m=>selMonths.has(m));
+  tbody.innerHTML=allCats.map((cat,i)=>{
+    const annV=vm.reduce((s,m)=>s+(D.mth[m].cogs_cat?.[cat]||0),0);
+    const monthCells=D.months.map(m=>{
+      const v=D.mth[m]?.cogs_cat?.[cat]||0;
+      const cls=v<0?'td-g':Math.abs(v)>5e6?'td-r':'';
+      return selMonths.has(m)?`<td class="num ${cls}">${v!==0?cr2(v):'–'}</td>`:'';
+    }).join('');
+    const sharePct=annTotal?((annV/annTotal)*100).toFixed(1):'–';
+    const valCls=annV<0?'td-g':'';
+    const subDetail=D.cogs_cat_detail[cat]||{};
+    const subRows=Object.entries(subDetail).map(([acc,val],si)=>{
+      const cls=val<0?'td-g':'';
+      const vendors=D.cogs_vendor_detail?.[acc]||{};
+      const reimb=D.reimb_detail?.[acc]||{};
+      const hasV=Object.keys(vendors).length>0||Object.keys(reimb).length>0;
+      const vndId=`cv-${i}-${si}`;
+      const vndRows=hasV?[
+        ...Object.entries(vendors).map(([vn,va])=>{const vc=va<0?'td-g':'';return `<tr class="vnd-row" data-vnd="${vndId}"><td>${vn}</td><td class="num ${vc}">${cr(va)}</td><td></td>${allMonthCols.map(()=>'<td></td>').join('')}</tr>`;}),
+        ...Object.entries(reimb).map(([rn,rv])=>`<tr class="vnd-row reimb-row" data-vnd="${vndId}"><td>\u21B3 ${rn}</td><td class="num">${cr(rv)}</td><td></td>${allMonthCols.map(()=>'<td></td>').join('')}</tr>`)
+      ].join(''):'';
+      const rowCls=`sub-row${hasV?' has-vendors':''}`;
+      const onclick=hasV?`onclick="toggleVnd(this,'${vndId}')"` :'';
+      return `<tr class="${rowCls}" data-cat="${i}" ${onclick}><td>${acc}</td><td class="num ${cls}">${cr(val)}</td><td></td>${allMonthCols.map(()=>'<td></td>').join('')}</tr>${vndRows}`;
+    }).join('');
+    return `<tr class="cat-hdr" id="ccat-${i}" onclick="toggleCat(${i})">
+      <td><span class="cat-toggle">▶</span>${cat}</td>
+      <td class="num ${valCls}">${cr(annV)}</td><td class="num">${sharePct}%</td>${monthCells}
+    </tr>${subRows}`;
+  }).join('');
+}
+
+// ─── RENDER INDIRECT ──────────────────────────────────────────────────────────
+function renderIndirect(){
+  const vm=visMonths();
+  const indTotal=mthSum('indirect');
+  const netSales=mthSum('net_sales'), gp=mthSum('gross_profit');
+  const isAllMonths=selMonths.size===D.months.length;
+
+  document.getElementById('ic-ins').innerHTML=
+    `Indirect costs${isAllMonths?' (annual)':'(month filtered)'}: <strong>${cr2(indTotal)}</strong> · Personnel is the largest category at <strong>${cr2(mthSumPlCat('Personnel'))}</strong>. Net Profit after indirect: <strong>${cr2(gp-indTotal)}</strong>.` +
+    (isAllMonths?'':' <em style="color:var(--muted);font-size:10px">⚠ Monthly P&L is sparse — filtered totals may undercount vs annual.</em>');
+
+  document.getElementById('ic-kpi').innerHTML=
+    kpi('Total Indirect',cr2(indTotal),isAllMonths?'Annual (authoritative)':'Month filtered','','var(--blue)')+
+    kpi('Personnel',cr2(mthSumPlCat('Personnel')),'Salary·Dir.Rem·PF','','var(--purple)')+
+    kpi('Finance',cr2(mthSumPlCat('Finance')),'Interest·BDC','','var(--red)')+
+    kpi('Net Profit',cr2(gp-indTotal),(netSales?((gp-indTotal)/netSales*100).toFixed(1):'–')+'% of net sales','','var(--green)');
+
+  // Donut annual
+  const cats=D.pl_cats;
+  const catVals=cats.map(c=>D.pl_annual[c]);
+  mkDonut('svg-ic-donut','ic-dleg', cats, catVals, PL_COLORS);
+
+  // Stacked monthly — always use monthly data for chart
+  mkChart('c-ic-stacked','bar',{
+    labels:vm,
+    datasets:cats.map((c,i)=>({
+      label:c, data:vm.map(m=>+((D.mth[m].pl_cat?.[c]||0)/1e5).toFixed(2)),
+      backgroundColor:mkc(PL_COLORS[i])+',0.8)', borderRadius:3, stack:'s'
+    }))
+  },{scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'₹'+v+'L'},grid:{color:'rgba(0,0,0,.04)'}}},plugins:{legend:{display:true,position:'top'},tooltip:{enabled:true}}});
+
+  // Collapsible table with sub-rows
+  const tbody=document.getElementById('ic-tbody');
+  const allMonthCols=D.months.filter(m=>selMonths.has(m));
+  tbody.innerHTML=cats.map((cat,i)=>{
+    const annV=mthSumPlCat(cat);
+    const monthCells=D.months.map(m=>{
+      if(!selMonths.has(m)) return '';
+      const v=D.mth[m]?.pl_cat?.[cat]||0;
+      const cls=v<0?'td-g':'';
+      return `<td class="num ${cls}">${v!==0?cr2(v):'–'}</td>`;
+    }).join('');
+    const subDetail=D.pl_cat_detail[cat]||{};
+    const subRows=Object.entries(subDetail).map(([acc,val],si)=>{
+      const cls=val<0?'td-g td-r':'';
+      const vendors=D.pl_vendor_detail?.[acc]||{};
+      const reimb=D.reimb_detail?.[acc]||{};
+      const hasV=Object.keys(vendors).length>0||Object.keys(reimb).length>0;
+      const vndId=`iv-${i}-${si}`;
+      const vndRows=hasV?[
+        ...Object.entries(vendors).map(([vn,va])=>{const vc=va<0?'td-g':'';return `<tr class="vnd-row" data-vnd="${vndId}"><td>${vn}</td><td class="num ${vc}">${cr(va)}</td>${allMonthCols.map(()=>'<td></td>').join('')}</tr>`;}),
+        ...Object.entries(reimb).map(([rn,rv])=>`<tr class="vnd-row reimb-row" data-vnd="${vndId}"><td>\u21B3 ${rn}</td><td class="num">${cr(rv)}</td>${allMonthCols.map(()=>'<td></td>').join('')}</tr>`)
+      ].join(''):'';
+      const rowCls=`sub-row${hasV?' has-vendors':''}`;
+      const onclick=hasV?`onclick="toggleVnd(this,'${vndId}')"` :'';
+      return `<tr class="${rowCls}" data-icat="${i}" ${onclick}><td>${acc}</td><td class="num ${cls}">${cr(val)}</td>${allMonthCols.map(()=>'<td></td>').join('')}</tr>${vndRows}`;
+    }).join('');
+    return `<tr class="cat-hdr" id="icat-${i}" onclick="toggleICat(${i})">
+      <td><span class="cat-toggle">▶</span>${cat}</td>
+      <td class="num ${annV<0?'td-g':''}">${cr(annV)}</td>${monthCells}
+    </tr>${subRows}`;
+  }).join('');
+}
+
+// ─── COLLAPSIBLE ─────────────────────────────────────────────────────────────
+function toggleCat(i){
+  const hdr=document.getElementById('ccat-'+i);
+  hdr.classList.toggle('open');
+  document.querySelectorAll(`.sub-row[data-cat="${i}"]`).forEach(r=>r.classList.toggle('visible'));
+}
+function toggleICat(i){
+  const hdr=document.getElementById('icat-'+i);
+  hdr.classList.toggle('open');
+  document.querySelectorAll(`.sub-row[data-icat="${i}"]`).forEach(r=>r.classList.toggle('visible'));
+}
+function toggleVnd(el,vndId){
+  el.classList.toggle('sv-open');
+  document.querySelectorAll(`.vnd-row[data-vnd="${vndId}"]`).forEach(r=>r.classList.toggle('visible'));
+  event.stopPropagation();
+}
+
+// ─── TAB SWITCH ──────────────────────────────────────────────────────────────
+function switchTab(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  renderAll();
+}
+
+// ─── MAIN RENDER ─────────────────────────────────────────────────────────────
+function renderAll(){
+  // Header summary
+  const gp=mthSum('gross_profit'), indTotal=mthSum('indirect'), ns=mthSum('net_sales');
+  document.getElementById('hdr-summary').innerHTML=
+    `Net Sales ${cr2(ns)} · Gross Profit ${cr2(gp)} · Net Profit ${cr2(gp-indTotal)}<br>Party: [${[...selParties].join(', ')}] · Months: ${selMonths.size===12?'All':selMonths.size+' selected'}`;
+
+  const active=document.querySelector('.page.active').id.replace('page-','');
+  if(active==='overview') renderOverview();
+  else if(active==='sales') renderSales();
+  else if(active==='returns') renderReturns();
+  else if(active==='ops') renderOps();
+  else if(active==='purchase') renderPurchase();
+  else if(active==='indirect') renderIndirect();
+}
+
+buildChips();
+renderAll();
+</script>
+</body>
+</html>
